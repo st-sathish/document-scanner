@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/camera"
+        android:icon="@drawable/cam"
+        android:title="Camera"/>
+
+    <item
+        android:id="@+id/media"
+        android:icon="@drawable/gallery"
+        android:title="Gallery"/>
+
+    <item
+        android:id="@+id/scan"
+        android:icon="@drawable/scan"
+        android:title="Scan"/>
+
+    <item
+        android:id="@+id/merge"
+        android:icon="@drawable/merge"
+        android:title="Merge"/>
+
+</menu>

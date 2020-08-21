@@ -12,8 +12,10 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
+import android.support.design.widget.BottomNavigationView;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -27,18 +29,21 @@ import com.scanlibrary.ScanConstants;
 import java.io.IOException;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
 
     private static final int REQUEST_CODE = 99;
     private Button scanButton;
     private Button cameraButton;
     private Button mediaButton;
     private ImageView scannedImageView;
+    BottomNavigationView bottomNavigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar); // get the reference of Toolbar
+        setSupportActionBar(toolbar); // Setting/replace toolbar as the ActionBar
         if (android.os.Build.VERSION.SDK_INT > 23) {
             checkPermission();
         }
@@ -62,13 +67,38 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void init() {
-        scanButton = (Button) findViewById(R.id.scanButton);
-        scanButton.setOnClickListener(new ScanButtonClickListener());
-        cameraButton = (Button) findViewById(R.id.cameraButton);
-        cameraButton.setOnClickListener(new ScanButtonClickListener(ScanConstants.OPEN_CAMERA));
-        mediaButton = (Button) findViewById(R.id.mediaButton);
-        mediaButton.setOnClickListener(new ScanButtonClickListener(ScanConstants.OPEN_MEDIA));
+      //  scanButton = (Button) findViewById(R.id.scanButton);
+     //   scanButton.setOnClickListener(new ScanButtonClickListener());
+      //  cameraButton = (Button) findViewById(R.id.cameraButton);
+    //    cameraButton.setOnClickListener(new ScanButtonClickListener(ScanConstants.OPEN_CAMERA));
+        //mediaButton = (Button) findViewById(R.id.mediaButton);
+     //   mediaButton.setOnClickListener(new ScanButtonClickListener(ScanConstants.OPEN_MEDIA));
+        bottomNavigationView = (BottomNavigationView) findViewById(R.id.navigationView);
         scannedImageView = (ImageView) findViewById(R.id.scannedImage);
+        bottomNavigationView.setOnNavigationItemSelectedListener(this);
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+        switch (menuItem.getItemId()){
+            case R.id.camera:
+                startScan(ScanConstants.OPEN_CAMERA);
+
+                break;
+            case R.id.media:
+                startScan(ScanConstants.OPEN_MEDIA);
+
+                break;
+            case R.id.scan:
+                startScan(0);
+
+                break;
+            case R.id.merge:
+                startScan(0);
+
+                break;
+        }
+        return true;
     }
 
     private class ScanButtonClickListener implements View.OnClickListener {
