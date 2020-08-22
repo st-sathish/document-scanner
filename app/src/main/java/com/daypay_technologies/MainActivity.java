@@ -63,7 +63,15 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         fragmentManager = getSupportFragmentManager();
-        setLandingPage();
+        if (android.os.Build.VERSION.SDK_INT > 23) {
+            if(checkPermission()){
+                setLandingPage();
+            }
+        }
+        else{
+            setLandingPage();;
+        }
+
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
        // get the reference of Toolbar
@@ -82,9 +90,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         if (! myDir.exists()) {
             myDir.mkdirs();
         }
-        if (android.os.Build.VERSION.SDK_INT > 23) {
-            checkPermission();
-        }
+
       init();
     }
 
@@ -114,15 +120,16 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 
 
     @RequiresApi(api = Build.VERSION_CODES.M)
-    private void checkPermission() {
+    private boolean checkPermission() {
         if(ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA) !=
                 PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE) !=
                 PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) !=
                 PackageManager.PERMISSION_GRANTED ){
             requestPermissions(new String[]{Manifest.permission.CAMERA,Manifest.permission.READ_EXTERNAL_STORAGE,
                     Manifest.permission.WRITE_EXTERNAL_STORAGE }, 500);
+            return false;
         }
-
+return true;
     }
 
 

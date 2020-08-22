@@ -16,8 +16,6 @@ import android.widget.ImageView;
 
 import com.daypay_technologies.R;
 import com.daypay_technologies.fragments.adapters.ImageRecyclerAdapter;
-import com.daypay_technologies.fragments.pojo.ImageData;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.zip.Inflater;

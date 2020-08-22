@@ -14,7 +14,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import com.daypay_technologies.R;
-import com.daypay_technologies.fragments.pojo.ImageData;
 
 import java.io.File;
 import java.util.ArrayList;
