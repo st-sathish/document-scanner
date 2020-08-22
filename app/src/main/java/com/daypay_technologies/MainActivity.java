@@ -2,6 +2,7 @@ package com.daypay_technologies;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.ClipData;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -9,45 +10,97 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.StrictMode;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.BottomNavigationView;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.daypay_technologies.fragments.ShowImageFragment;
 import com.scanlibrary.ScanActivity;
 import com.scanlibrary.ScanConstants;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 
 public class MainActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
 
     private static final int REQUEST_CODE = 99;
-    private Button scanButton;
-    private Button cameraButton;
-    private Button mediaButton;
-    private ImageView scannedImageView;
     BottomNavigationView bottomNavigationView;
+    Uri imageUri;
+    String root = Environment.getExternalStorageDirectory().getAbsolutePath();
+    File myDir = new File(root + "/documentimages");
+    FragmentManager fragmentManager;
+    FragmentTransaction fragmentTransaction;
+    Bitmap imageBitmap;
+    MenuItem shareIcon;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar); // get the reference of Toolbar
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+       // get the reference of Toolbar
         setSupportActionBar(toolbar); // Setting/replace toolbar as the ActionBar
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            Window window = getWindow();
+            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.setStatusBarColor(ContextCompat.getColor(this, R.color.my_statusbar_color));
+        }
+        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+        StrictMode.setVmPolicy(builder.build());
+        fragmentManager = getSupportFragmentManager();
+       // addBottomBorder();
+        root = Environment.getExternalStorageDirectory().getAbsolutePath();
+        myDir = new File(root + "/documentimages");
+        if (! myDir.exists()) {
+            myDir.mkdirs();
+        }
         if (android.os.Build.VERSION.SDK_INT > 23) {
             checkPermission();
         }
-        init();
+      init();
+    }
+
+    private void showImage(Bitmap bitmap) {
+        Fragment fragment = fragmentManager.findFragmentById(R.id.frame);
+        if(fragment == null) {
+            ShowImageFragment showImageFragment = new ShowImageFragment(bitmap);
+            fragmentTransaction = fragmentManager.beginTransaction();
+            fragmentTransaction.add(R.id.frame, showImageFragment);
+            fragmentTransaction.commit();
+        }
+        else{
+            ShowImageFragment showImageFragment = new ShowImageFragment(bitmap);
+            fragmentTransaction = fragmentManager.beginTransaction();
+            fragmentTransaction.replace(R.id.frame, showImageFragment);
+            fragmentTransaction.commit();
+        }
+
     }
 
 
@@ -67,15 +120,16 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 
 
     private void init() {
-      //  scanButton = (Button) findViewById(R.id.scanButton);
-     //   scanButton.setOnClickListener(new ScanButtonClickListener());
-      //  cameraButton = (Button) findViewById(R.id.cameraButton);
-    //    cameraButton.setOnClickListener(new ScanButtonClickListener(ScanConstants.OPEN_CAMERA));
-        //mediaButton = (Button) findViewById(R.id.mediaButton);
-     //   mediaButton.setOnClickListener(new ScanButtonClickListener(ScanConstants.OPEN_MEDIA));
         bottomNavigationView = (BottomNavigationView) findViewById(R.id.navigationView);
-        scannedImageView = (ImageView) findViewById(R.id.scannedImage);
         bottomNavigationView.setOnNavigationItemSelectedListener(this);
+    }
+
+    private void shareImage() {
+       Intent share = new Intent(Intent.ACTION_SEND);
+        share.setType("image/jpeg");
+       share.putExtra(Intent.EXTRA_STREAM, imageUri);
+        startActivity(Intent.createChooser(share, "Share Image"));
+
     }
 
     @Override
@@ -89,35 +143,26 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
                 startScan(ScanConstants.OPEN_MEDIA);
 
                 break;
-            case R.id.scan:
+           /* case R.id.scan:
                 startScan(0);
 
-                break;
+                break; */
             case R.id.merge:
-                startScan(0);
+                pickImage();
 
                 break;
         }
         return true;
     }
 
-    private class ScanButtonClickListener implements View.OnClickListener {
+    private void pickImage() {
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(intent, "Select Picture"),143);
 
-        private int preference;
-
-        public ScanButtonClickListener(int preference) {
-            this.preference = preference;
-        }
-
-        public ScanButtonClickListener() {
-        }
-
-        @Override
-        public void onClick(View v) {
-
-            startScan(preference);
-        }
     }
+
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -131,20 +176,48 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         startActivityForResult(intent, REQUEST_CODE);
     }
 
+
+    protected void saveImage(Bitmap finalBitmap) {
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new
+                Date());
+
+        String fname = "Image-"+ timeStamp +".jpg";
+        File file = new File (myDir, fname);
+        if (file.exists ()) file.delete ();
+        try {
+            FileOutputStream out = new FileOutputStream(file);
+            finalBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+            out.flush();
+            out.close();
+            imageUri = Uri.fromFile(file);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_CODE && resultCode == Activity.RESULT_OK) {
             Uri uri = data.getExtras().getParcelable(ScanConstants.SCANNED_RESULT);
+            imageUri = uri;
             Bitmap bitmap = null;
             try {
                 bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
                 getContentResolver().delete(uri, null, null);
-                scannedImageView.setImageBitmap(bitmap);
-                scannedImageView.setVisibility(View.VISIBLE);
+                saveImage(bitmap);
+                imageBitmap = bitmap;
+                showImage(imageBitmap);
+                shareIcon.setVisible(true);
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+        if (requestCode == 143) {
+           Toast.makeText(this,"Image Selected",Toast.LENGTH_LONG).show();
         }
     }
 
@@ -156,6 +229,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
+        shareIcon = menu.findItem(R.id.share_icon);
         return true;
     }
 
@@ -167,7 +241,9 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.share_icon) {
+            shareImage();
+
             return true;
         }
 
