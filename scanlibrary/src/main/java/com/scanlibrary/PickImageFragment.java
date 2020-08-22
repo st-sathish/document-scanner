@@ -10,9 +10,12 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
+import android.support.design.widget.BottomNavigationView;
 import android.support.v4.content.FileProvider;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
@@ -25,9 +28,10 @@ import java.util.Date;
 /**
  * Created by jhansi on 04/04/15.
  */
-public class PickImageFragment extends Fragment {
+public class PickImageFragment extends Fragment implements BottomNavigationView.OnNavigationItemSelectedListener {
 
     private View view;
+    BottomNavigationView bottomNavigation;
     private ImageButton cameraButton;
     private ImageButton galleryButton;
     private Uri fileUri;
@@ -50,10 +54,12 @@ public class PickImageFragment extends Fragment {
     }
 
     private void init() {
-        cameraButton = (ImageButton) view.findViewById(R.id.cameraButton);
+     /*   cameraButton = (ImageButton) view.findViewById(R.id.cameraButton);
         cameraButton.setOnClickListener(new CameraButtonClickListener());
         galleryButton = (ImageButton) view.findViewById(R.id.selectButton);
-        galleryButton.setOnClickListener(new GalleryClickListener());
+        galleryButton.setOnClickListener(new GalleryClickListener()); */
+        bottomNavigation = (BottomNavigationView) view.findViewById(R.id.bottomnavigationView);
+        bottomNavigation.setOnNavigationItemSelectedListener(this);
         if (isIntentPreferenceSet()) {
             handleIntentPreference();
         } else {
@@ -88,6 +94,17 @@ public class PickImageFragment extends Fragment {
     private int getIntentPreference() {
         int preference = getArguments().getInt(ScanConstants.OPEN_INTENT_PREFERENCE, 0);
         return preference;
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+        int itemId = menuItem.getItemId();
+        if (itemId == R.id.camera1) {
+            openCamera();
+        } else if (itemId == R.id.media1) {
+            openMediaContent();
+        }
+        return true;
     }
 
 

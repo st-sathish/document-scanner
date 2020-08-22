@@ -62,6 +62,7 @@
         android:layout_alignParentBottom="true"
         android:background="@color/bottom_background_color"
         android:orientation="horizontal"
+        android:textColor="#ffffff"
         android:padding="@dimen/bottom_bar_padding"
         android:text="@string/done" />
 
