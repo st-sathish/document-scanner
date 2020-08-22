@@ -32,6 +32,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.daypay_technologies.fragments.LandingPageFragment;
 import com.daypay_technologies.fragments.ShowImageFragment;
 import com.scanlibrary.ScanActivity;
 import com.scanlibrary.ScanConstants;
@@ -48,8 +49,8 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     private static final int REQUEST_CODE = 99;
     BottomNavigationView bottomNavigationView;
     Uri imageUri;
-    String root = Environment.getExternalStorageDirectory().getAbsolutePath();
-    File myDir = new File(root + "/documentimages");
+    String root;
+    File myDir;
     FragmentManager fragmentManager;
     FragmentTransaction fragmentTransaction;
     Bitmap imageBitmap;
@@ -61,6 +62,8 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        fragmentManager = getSupportFragmentManager();
+        setLandingPage();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
        // get the reference of Toolbar
@@ -73,7 +76,6 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         }
         StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
         StrictMode.setVmPolicy(builder.build());
-        fragmentManager = getSupportFragmentManager();
        // addBottomBorder();
         root = Environment.getExternalStorageDirectory().getAbsolutePath();
         myDir = new File(root + "/documentimages");
@@ -84,6 +86,13 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
             checkPermission();
         }
       init();
+    }
+
+    private void setLandingPage() {
+        LandingPageFragment landingPageFragment = new LandingPageFragment();
+        fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.add(R.id.frame, landingPageFragment);
+        fragmentTransaction.commit();
     }
 
     private void showImage(Bitmap bitmap) {
@@ -148,11 +157,24 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 
                 break; */
             case R.id.merge:
-                pickImage();
+             mergeImage();
 
                 break;
         }
         return true;
+    }
+
+    private void mergeImage() {
+        Fragment fragment = fragmentManager.findFragmentById(R.id.frame);
+        if(fragment instanceof LandingPageFragment) {
+            return;
+        } else {
+            LandingPageFragment landingPageFragment = new LandingPageFragment();
+            fragmentTransaction = fragmentManager.beginTransaction();
+            fragmentTransaction.replace(R.id.frame, landingPageFragment);
+            fragmentTransaction.addToBackStack(null);
+            fragmentTransaction.commit();
+        }
     }
 
     private void pickImage() {
