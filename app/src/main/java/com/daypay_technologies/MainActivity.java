@@ -292,7 +292,7 @@ return true;
         Fragment fragment = fragmentManager.findFragmentById(R.id.frame);
         if(fragment instanceof MergeImageFragment) {
           if(((MergeImageFragment) fragment).merge()){
-              Toast.makeText(this,"Merged", Toast.LENGTH_SHORT).show();
+         //     Toast.makeText(this,"Merged", Toast.LENGTH_SHORT).show();
           }
           else {
               Toast.makeText(this,"Select Images to Merge", Toast.LENGTH_SHORT).show();

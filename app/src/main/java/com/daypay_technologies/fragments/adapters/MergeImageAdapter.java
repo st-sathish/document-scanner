@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.TextView;
 import com.daypay_technologies.R;
@@ -76,12 +77,27 @@ public class MergeImageAdapter extends
         TextView fileName;
         ImageView image;
         CheckBox checkBox;
+        LinearLayout checkboxLayout;
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             fileName = (TextView) itemView.findViewById(R.id.merge_file_name);
             image = (ImageView) itemView.findViewById(R.id.merge_image);
             checkBox = (CheckBox) itemView.findViewById(R.id.radioBtn);
-            checkBox.setOnClickListener(new View.OnClickListener() {
+            checkboxLayout = (LinearLayout) itemView.findViewById(R.id.checkbox_layout);
+            checkboxLayout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    checkBox.setChecked(!checkBox.isChecked());
+                    if(firstImagePosition == -1 ) {
+                        firstImagePosition = getAdapterPosition();
+
+                    } else {
+                        secondImagePosition = firstImagePosition;
+                        firstImagePosition = getAdapterPosition();
+                    }
+                }
+            });
+       /*     checkBox.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if(firstImagePosition == -1 ) {
@@ -94,7 +110,7 @@ public class MergeImageAdapter extends
                     }
 
                 }
-            });
+            }); */
         }
     }
 }
