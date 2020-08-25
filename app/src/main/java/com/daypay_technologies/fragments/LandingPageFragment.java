@@ -1,6 +1,7 @@
 package com.daypay_technologies.fragments;
 
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Environment;
@@ -14,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.daypay_technologies.MainActivity;
 import com.daypay_technologies.R;
 import com.daypay_technologies.fragments.adapters.ImageRecyclerAdapter;
 import java.io.File;
@@ -42,6 +44,18 @@ public class LandingPageFragment extends Fragment {
         }
         return view;
     }
+
+
+
+    @Override
+    public void onResume() {
+        super.onResume();
+if(getActivity() instanceof MainActivity){
+    ((MainActivity) getActivity()).setToolbarIcon(this);
+}
+    }
+
+
 
     private void setImageData() {
         root = Environment.getExternalStorageDirectory().getAbsolutePath();

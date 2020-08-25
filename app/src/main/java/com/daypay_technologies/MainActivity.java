@@ -2,7 +2,6 @@ package com.daypay_technologies;
 
 import android.Manifest;
 import android.app.Activity;
-import android.content.ClipData;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -24,15 +23,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.Button;
-import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.daypay_technologies.fragments.LandingPageFragment;
+import com.daypay_technologies.fragments.MergeImageFragment;
 import com.daypay_technologies.fragments.ShowImageFragment;
 import com.scanlibrary.ScanActivity;
 import com.scanlibrary.ScanConstants;
@@ -54,7 +50,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     FragmentManager fragmentManager;
     FragmentTransaction fragmentTransaction;
     Bitmap imageBitmap;
-    MenuItem shareIcon;
+    MenuItem shareIcon, mergeIcon;
 
 
 
@@ -101,21 +97,12 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         fragmentTransaction.commit();
     }
 
-    private void showImage(Bitmap bitmap) {
-        Fragment fragment = fragmentManager.findFragmentById(R.id.frame);
-        if(fragment == null) {
-            ShowImageFragment showImageFragment = new ShowImageFragment(bitmap);
-            fragmentTransaction = fragmentManager.beginTransaction();
-            fragmentTransaction.add(R.id.frame, showImageFragment);
-            fragmentTransaction.commit();
-        }
-        else{
+    public void showImage(Bitmap bitmap) {
             ShowImageFragment showImageFragment = new ShowImageFragment(bitmap);
             fragmentTransaction = fragmentManager.beginTransaction();
             fragmentTransaction.replace(R.id.frame, showImageFragment);
+            fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commit();
-        }
-
     }
 
 
@@ -164,21 +151,21 @@ return true;
 
                 break; */
             case R.id.merge:
-             mergeImage();
+             mergeImageFragment();
 
                 break;
         }
         return true;
     }
 
-    private void mergeImage() {
+    private void mergeImageFragment() {
         Fragment fragment = fragmentManager.findFragmentById(R.id.frame);
-        if(fragment instanceof LandingPageFragment) {
+        if(fragment instanceof MergeImageFragment) {
             return;
         } else {
-            LandingPageFragment landingPageFragment = new LandingPageFragment();
+            MergeImageFragment mergeImageFragment = new MergeImageFragment();
             fragmentTransaction = fragmentManager.beginTransaction();
-            fragmentTransaction.replace(R.id.frame, landingPageFragment);
+            fragmentTransaction.replace(R.id.frame, mergeImageFragment);
             fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commit();
         }
@@ -206,7 +193,7 @@ return true;
     }
 
 
-    protected void saveImage(Bitmap finalBitmap) {
+    public void saveImage(Bitmap finalBitmap) {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new
                 Date());
 
@@ -222,6 +209,22 @@ return true;
 
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+    public void setToolbarIcon(Fragment fragment){
+        if(fragment instanceof LandingPageFragment){
+            if(shareIcon != null && mergeIcon != null) {
+                shareIcon.setVisible(false);
+                mergeIcon.setVisible(false);
+            }
+        }
+        else if(fragment instanceof ShowImageFragment){
+            shareIcon.setVisible(true);
+            mergeIcon.setVisible(false);
+        }
+       else if(fragment instanceof MergeImageFragment){
+            shareIcon.setVisible(false);
+            mergeIcon.setVisible(true);
         }
     }
 
@@ -240,7 +243,7 @@ return true;
                 saveImage(bitmap);
                 imageBitmap = bitmap;
                 showImage(imageBitmap);
-                shareIcon.setVisible(true);
+               // shareIcon.setVisible(true);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -259,6 +262,7 @@ return true;
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         shareIcon = menu.findItem(R.id.share_icon);
+        mergeIcon = menu.findItem(R.id.merge_icon);
         return true;
     }
 
@@ -275,8 +279,25 @@ return true;
 
             return true;
         }
+        if (id == R.id.merge_icon) {
+            mergeImage();
+
+            return true;
+        }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void mergeImage() {
+        Fragment fragment = fragmentManager.findFragmentById(R.id.frame);
+        if(fragment instanceof MergeImageFragment) {
+          if(((MergeImageFragment) fragment).merge()){
+              Toast.makeText(this,"Merged", Toast.LENGTH_SHORT).show();
+          }
+          else {
+              Toast.makeText(this,"Select Images to Merge", Toast.LENGTH_SHORT).show();
+          }
+        }
     }
 
 }

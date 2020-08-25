@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.daypay_technologies.MainActivity;
 import com.daypay_technologies.R;
 
 import java.util.zip.Inflater;
@@ -31,6 +32,13 @@ public class ShowImageFragment extends Fragment {
       imageView = view.findViewById(R.id.savedImage);
         imageView.setImageBitmap(bitmap);
        return view;
+    }
+    @Override
+    public void onResume() {
+        super.onResume();
+        if(getActivity() instanceof MainActivity){
+            ((MainActivity) getActivity()).setToolbarIcon(this);
+        }
     }
 }
 

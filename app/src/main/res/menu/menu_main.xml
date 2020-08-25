@@ -7,8 +7,16 @@
     <item
         android:id="@+id/share_icon"
         android:orderInCategory="300"
-        android:title="User"
+        android:title="Share"
         android:icon="@drawable/share"
+        app:showAsAction="ifRoom"
+        android:visible="false"
+        />
+    <item
+        android:id="@+id/merge_icon"
+        android:orderInCategory="300"
+        android:title="Merge"
+        android:icon="@drawable/merging"
         app:showAsAction="ifRoom"
         android:visible="false"
         />
