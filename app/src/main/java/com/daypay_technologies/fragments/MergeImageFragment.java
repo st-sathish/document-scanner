@@ -76,8 +76,8 @@ public class MergeImageFragment extends Fragment {
             canvas.drawBitmap(firstImage, firstLeft, 0f, null);
             canvas.drawBitmap(secondImage, secondLeft, firstImage.getHeight(), null);
             if(result != null) {
-                ((MainActivity)getActivity()).saveImage(result);
-                ((MainActivity)getActivity()).showImage(result);
+              File file =  ((MainActivity)getActivity()).saveImage(result);
+                ((MainActivity)getActivity()).showImage(result, file);
             }
     }
 

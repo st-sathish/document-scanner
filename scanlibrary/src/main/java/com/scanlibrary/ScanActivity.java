@@ -26,7 +26,17 @@ public class ScanActivity extends Activity implements IScanner, ComponentCallbac
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
             window.setStatusBarColor(ContextCompat.getColor(this, R.color.my_statusbar_color));
         }
-        init();
+     if(ScanConstants.MERGE_IMAGE == getIntent().getIntExtra(ScanConstants.OPEN_INTENT_PREFERENCE,0)){
+         mergeImage();
+     } else{
+         init();
+     }
+
+
+    }
+
+    private void mergeImage() {
+
     }
 
     private void init() {

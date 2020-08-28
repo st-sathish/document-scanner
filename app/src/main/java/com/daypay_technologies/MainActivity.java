@@ -27,9 +27,13 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+import com.daypay_technologies.fragments.CreatePdfFragment;
 import com.daypay_technologies.fragments.LandingPageFragment;
 import com.daypay_technologies.fragments.MergeImageFragment;
 import com.daypay_technologies.fragments.ShowImageFragment;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.Image;
+import com.itextpdf.text.pdf.PdfWriter;
 import com.scanlibrary.ScanActivity;
 import com.scanlibrary.ScanConstants;
 
@@ -44,7 +48,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 
     private static final int REQUEST_CODE = 99;
     BottomNavigationView bottomNavigationView;
-    Uri imageUri;
+    Uri imageUri, pdfUri;
     String root;
     File myDir;
     FragmentManager fragmentManager;
@@ -84,7 +88,14 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         root = Environment.getExternalStorageDirectory().getAbsolutePath();
         myDir = new File(root + "/documentimages");
         if (! myDir.exists()) {
-            myDir.mkdirs();
+           if (myDir.mkdirs()){
+               Toast.makeText(this, "created",Toast.LENGTH_LONG).show();
+           }
+           else{
+               Toast.makeText(this, "Not created",Toast.LENGTH_LONG).show();
+           }
+        } else {
+            Toast.makeText(this, "Already exists",Toast.LENGTH_LONG).show();
         }
 
       init();
@@ -97,8 +108,8 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         fragmentTransaction.commit();
     }
 
-    public void showImage(Bitmap bitmap) {
-            ShowImageFragment showImageFragment = new ShowImageFragment(bitmap);
+    public void showImage(Bitmap bitmap, File file) {
+            ShowImageFragment showImageFragment = new ShowImageFragment(bitmap, file);
             fragmentTransaction = fragmentManager.beginTransaction();
             fragmentTransaction.replace(R.id.frame, showImageFragment);
             fragmentTransaction.addToBackStack(null);
@@ -128,11 +139,19 @@ return true;
     }
 
     private void shareImage() {
-       Intent share = new Intent(Intent.ACTION_SEND);
-        share.setType("image/jpeg");
-       share.putExtra(Intent.EXTRA_STREAM, imageUri);
-        startActivity(Intent.createChooser(share, "Share Image"));
-
+        Fragment fragment = fragmentManager.findFragmentById(R.id.frame);
+        if(fragment instanceof ShowImageFragment) {
+            Intent share = new Intent(Intent.ACTION_SEND);
+            share.setType("image/jpeg");
+            share.putExtra(Intent.EXTRA_STREAM, imageUri);
+            startActivity(Intent.createChooser(share, "Share Image"));
+        }
+        else if(fragment instanceof CreatePdfFragment) {
+            Intent share = new Intent(Intent.ACTION_SEND);
+            share.setType("application/pdf");
+            share.putExtra(Intent.EXTRA_STREAM, pdfUri);
+            startActivity(Intent.createChooser(share, "Share PDF"));
+        }
     }
 
     @Override
@@ -192,8 +211,15 @@ return true;
         startActivityForResult(intent, REQUEST_CODE);
     }
 
+    protected void merge(int preference) {
+        Intent intent = new Intent(this, ScanActivity.class);
+        intent.putExtra(ScanConstants.OPEN_INTENT_PREFERENCE, preference);
+        startActivityForResult(intent, 15);
+    }
 
-    public void saveImage(Bitmap finalBitmap) {
+
+
+    public File saveImage(Bitmap finalBitmap) {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new
                 Date());
 
@@ -210,6 +236,7 @@ return true;
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return  file;
     }
     public void setToolbarIcon(Fragment fragment){
         if(fragment instanceof LandingPageFragment){
@@ -226,6 +253,10 @@ return true;
             shareIcon.setVisible(false);
             mergeIcon.setVisible(true);
         }
+        else if(fragment instanceof CreatePdfFragment){
+            shareIcon.setVisible(true);
+            mergeIcon.setVisible(false);
+        }
     }
 
 
@@ -240,9 +271,9 @@ return true;
             try {
                 bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
                 getContentResolver().delete(uri, null, null);
-                saveImage(bitmap);
+               File imgFile = saveImage(bitmap);
                 imageBitmap = bitmap;
-                showImage(imageBitmap);
+                showImage(imageBitmap, imgFile);
                // shareIcon.setVisible(true);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -281,11 +312,51 @@ return true;
         }
         if (id == R.id.merge_icon) {
             mergeImage();
-
+            //  merge(ScanConstants.MERGE_IMAGE);
             return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+    public void convertPdf(File imagefile){
+        Document document = new Document();
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new
+                Date());
+        File directory = new File(root + "/documentimages/Documents");
+        if (! directory.exists()) {
+            directory.mkdirs();
+        }
+        String fileName = "Document-"+ timeStamp +".pdf";
+        String imageName = imagefile.getName();
+        File file = new File (directory, fileName);
+        if (file.exists ()) file.delete ();
+        try {
+            PdfWriter.getInstance(document, new FileOutputStream(directory + "/" + fileName));
+            document.open();
+            Image image = Image.getInstance(myDir + "/" + imageName);
+
+            float scaler = ((document.getPageSize().getWidth() - document.leftMargin()
+                    - document.rightMargin() - 0) / image.getWidth()) * 100; // 0 means you have no indentation. If you have any, change it.
+            image.scalePercent(scaler);
+            image.setAlignment(Image.ALIGN_CENTER | Image.ALIGN_TOP);
+            document.add(image);
+            document.close();
+           // Toast.makeText(this,"Created", Toast.LENGTH_SHORT).show();
+            viewpdf(file);
+        }
+        catch(Exception e){
+            e.printStackTrace();
+            Toast.makeText(this,"Sorry, Unable convert this image to pdf", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private void viewpdf(File file) {
+        pdfUri = Uri.fromFile(file);
+        CreatePdfFragment createPdfFragment = new CreatePdfFragment(file);
+        fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.replace(R.id.frame, createPdfFragment);
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.commit();
     }
 
     private void mergeImage() {
