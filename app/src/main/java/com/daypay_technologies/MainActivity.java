@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -37,6 +38,7 @@ import com.itextpdf.text.pdf.PdfWriter;
 import com.scanlibrary.ScanActivity;
 import com.scanlibrary.ScanConstants;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -47,6 +49,7 @@ import java.util.Date;
 public class MainActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
 
     private static final int REQUEST_CODE = 99;
+    private static final int MERGE_REQUEST_CODE = 98;
     BottomNavigationView bottomNavigationView;
     Uri imageUri, pdfUri;
     String root;
@@ -211,10 +214,13 @@ return true;
         startActivityForResult(intent, REQUEST_CODE);
     }
 
-    protected void merge(int preference) {
+    public void merge(int preference, Bitmap image1, Bitmap image2) {
         Intent intent = new Intent(this, ScanActivity.class);
         intent.putExtra(ScanConstants.OPEN_INTENT_PREFERENCE, preference);
-        startActivityForResult(intent, 15);
+        ScanConstants.image1 = image1;
+        ScanConstants.image2 = image2;
+
+        startActivityForResult(intent, MERGE_REQUEST_CODE);
     }
 
 
@@ -279,6 +285,14 @@ return true;
                 e.printStackTrace();
             }
         }
+        if (requestCode == MERGE_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+            if(ScanConstants.resultImage1 != null && ScanConstants.resultImage2 != null){
+                Bitmap image1 = ScanConstants.resultImage1;
+                Bitmap image2 = ScanConstants.resultImage2;
+                imageMerge(image1, image2);
+            }
+
+        }
         if (requestCode == 143) {
            Toast.makeText(this,"Image Selected",Toast.LENGTH_LONG).show();
         }
@@ -286,6 +300,24 @@ return true;
 
     private Bitmap convertByteArrayToBitmap(byte[] data) {
         return BitmapFactory.decodeByteArray(data, 0, data.length);
+    }
+
+    private void imageMerge(Bitmap firstImage, Bitmap secondImage) {
+
+
+        int width = firstImage.getWidth()< secondImage.getWidth() ? secondImage.getWidth() : firstImage.getWidth();
+        Bitmap result = Bitmap.createBitmap(width, firstImage.getHeight()+secondImage.getHeight(), firstImage.getConfig());
+        float firstLeft = firstImage.getWidth()> secondImage.getWidth() ? 0f : (float) (secondImage.getWidth()-firstImage.getWidth())/2;
+        float secondLeft = firstImage.getWidth()< secondImage.getWidth() ? 0f : (float) (firstImage.getWidth()-secondImage.getWidth())/2;
+        Canvas canvas = new Canvas(result);
+        canvas.drawBitmap(firstImage, firstLeft, 0f, null);
+        canvas.drawBitmap(secondImage, secondLeft, firstImage.getHeight(), null);
+        ScanConstants.resultImage1 = null;
+        ScanConstants.resultImage2 = null;
+        if(result != null) {
+            File file = saveImage(result);
+           showImage(result, file);
+        }
     }
 
     @Override
@@ -312,7 +344,7 @@ return true;
         }
         if (id == R.id.merge_icon) {
             mergeImage();
-            //  merge(ScanConstants.MERGE_IMAGE);
+              //merge(ScanConstants.MERGE_IMAGE);
             return true;
         }
 
@@ -362,7 +394,8 @@ return true;
     private void mergeImage() {
         Fragment fragment = fragmentManager.findFragmentById(R.id.frame);
         if(fragment instanceof MergeImageFragment) {
-          if(((MergeImageFragment) fragment).merge()){
+         if(((MergeImageFragment) fragment).merge()){
+
          //     Toast.makeText(this,"Merged", Toast.LENGTH_SHORT).show();
           }
           else {

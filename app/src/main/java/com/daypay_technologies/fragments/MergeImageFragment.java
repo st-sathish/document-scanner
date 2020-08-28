@@ -4,6 +4,7 @@ package com.daypay_technologies.fragments;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
@@ -20,6 +21,7 @@ import com.daypay_technologies.MainActivity;
 import com.daypay_technologies.R;
 import com.daypay_technologies.fragments.adapters.ImageRecyclerAdapter;
 import com.daypay_technologies.fragments.adapters.MergeImageAdapter;
+import com.scanlibrary.ScanConstants;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -54,7 +56,8 @@ public class MergeImageFragment extends Fragment {
 
           imagePosition = imageRecyclerAdapter.selectedImages();
           if(imagePosition != null) {
-              mergeImage();
+             // mergeImage();
+              mergeImageFile();
           }
           else {
               return false;
@@ -62,6 +65,13 @@ public class MergeImageFragment extends Fragment {
     return true;
         }
         return false;
+    }
+    public boolean mergeImageFile() {
+
+        Bitmap firstImage = BitmapFactory.decodeFile(imageData.get(imagePosition[0]).getPath());
+        Bitmap secondImage = BitmapFactory.decodeFile(imageData.get(imagePosition[1]).getPath());
+        ((MainActivity)getActivity()).merge(ScanConstants.MERGE_IMAGE, firstImage, secondImage);
+        return true;
     }
 
     private void mergeImage() {
@@ -105,4 +115,6 @@ public class MergeImageFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
     }
+
+
 }

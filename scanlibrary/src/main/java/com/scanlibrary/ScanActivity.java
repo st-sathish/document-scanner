@@ -4,7 +4,9 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.FragmentTransaction;
 import android.content.ComponentCallbacks2;
+import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
@@ -27,7 +29,10 @@ public class ScanActivity extends Activity implements IScanner, ComponentCallbac
             window.setStatusBarColor(ContextCompat.getColor(this, R.color.my_statusbar_color));
         }
      if(ScanConstants.MERGE_IMAGE == getIntent().getIntExtra(ScanConstants.OPEN_INTENT_PREFERENCE,0)){
-         mergeImage();
+  Bitmap image1 = ScanConstants.image1;
+ Bitmap image2 = ScanConstants.image2;
+
+         mergeImage(image1, image2);
      } else{
          init();
      }
@@ -35,8 +40,13 @@ public class ScanActivity extends Activity implements IScanner, ComponentCallbac
 
     }
 
-    private void mergeImage() {
+    private void mergeImage(Bitmap image1, Bitmap image2) {
 
+        Scan2Fragment scan2Fragment = new Scan2Fragment(image1,image2);
+        android.app.FragmentManager fragmentManager = getFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.add(R.id.content, scan2Fragment);
+        fragmentTransaction.commit();
     }
 
     private void init() {

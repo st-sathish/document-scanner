@@ -98,7 +98,7 @@ public class ScanFragment extends Fragment {
         Bitmap scaledBitmap = scaledBitmap(original, sourceFrame.getWidth(), sourceFrame.getHeight());
         sourceImageView.setImageBitmap(scaledBitmap);
         Bitmap tempBitmap = ((BitmapDrawable) sourceImageView.getDrawable()).getBitmap();
-        Map<Integer, PointF> pointFs = getEdgePoints(tempBitmap);
+        Map<Integer, PointF> pointFs = getEdgePoints(tempBitmap, polygonView);
         polygonView.setPoints(pointFs);
         polygonView.setVisibility(View.VISIBLE);
         int padding = (int) getResources().getDimension(R.dimen.scanPadding);
@@ -107,9 +107,9 @@ public class ScanFragment extends Fragment {
         polygonView.setLayoutParams(layoutParams);
     }
 
-    private Map<Integer, PointF> getEdgePoints(Bitmap tempBitmap) {
+    Map<Integer, PointF> getEdgePoints(Bitmap tempBitmap, PolygonView polygonView) {
         List<PointF> pointFs = getContourEdgePoints(tempBitmap);
-        Map<Integer, PointF> orderedPoints = orderedValidEdgePoints(tempBitmap, pointFs);
+        Map<Integer, PointF> orderedPoints = orderedValidEdgePoints(tempBitmap, pointFs, polygonView);
         return orderedPoints;
     }
 
@@ -142,7 +142,7 @@ public class ScanFragment extends Fragment {
         return outlinePoints;
     }
 
-    private Map<Integer, PointF> orderedValidEdgePoints(Bitmap tempBitmap, List<PointF> pointFs) {
+    private Map<Integer, PointF> orderedValidEdgePoints(Bitmap tempBitmap, List<PointF> pointFs, PolygonView polygonView) {
         Map<Integer, PointF> orderedPoints = polygonView.getOrderedPoints(pointFs);
         if (!polygonView.isValidShape(orderedPoints)) {
             orderedPoints = getOutlinePoints(tempBitmap);
@@ -172,7 +172,7 @@ public class ScanFragment extends Fragment {
         return points.size() == 4;
     }
 
-    private Bitmap scaledBitmap(Bitmap bitmap, int width, int height) {
+    public Bitmap scaledBitmap(Bitmap bitmap, int width, int height) {
         Matrix m = new Matrix();
         m.setRectToRect(new RectF(0, 0, bitmap.getWidth(), bitmap.getHeight()), new RectF(0, 0, width, height), Matrix.ScaleToFit.CENTER);
         return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), m, true);

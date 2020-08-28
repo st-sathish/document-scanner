@@ -1,5 +1,6 @@
 package com.scanlibrary;
 
+import android.graphics.Bitmap;
 import android.os.Environment;
 
 /**
@@ -14,6 +15,7 @@ public class ScanConstants {
     public final static int OPEN_CAMERA = 4;
     public final static int OPEN_MEDIA = 5;
     public final static int MERGE_IMAGE = 6;
+    public static Bitmap image1, image2, resultImage1, resultImage2;
     public final static String SCANNED_RESULT = "scannedResult";
     public final static String IMAGE_PATH = Environment
             .getExternalStorageDirectory().getPath() + "/scanSample";
