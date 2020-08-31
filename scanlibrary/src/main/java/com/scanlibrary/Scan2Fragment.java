@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.graphics.PointF;
@@ -99,13 +100,50 @@ this.image2 = image2;
                 Map<Integer, PointF> points1 = polygonView1.getPoints();
                 Map<Integer, PointF> points2 = polygonView2.getPoints();
                 if (isScanPointsValid(points1)&&isScanPointsValid(points2)) {
-                    new ScanAsyncTask(points1, points2).execute();
+                    // new ScanAsyncTask(points1, points2).execute();
+                       cropImage(points1, points2);
                 } else {
                  //   super.showErrorDialog();
                 }
             }
         });
     }
+
+    public void cropImage(Map<Integer, PointF> points1, Map<Integer, PointF> points2){
+        final Bitmap bitmap1 =  getScannedBitmap(image1, points1, sourceImageView1);
+        final Bitmap bitmap2 =  getScannedBitmap(image2, points2, sourceImageView2);
+        AsyncTask.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Intent data = new Intent();
+                   Bitmap image1 = bitmap1;
+                   Bitmap image2 = bitmap2;
+                    Uri uri1 = Utils.getUri(getActivity(), image1);
+                    Uri uri2 = Utils.getUri(getActivity(), image2);
+                    data.putExtra(ScanConstants.MERGE_IMAGE1, uri1);
+                    data.putExtra(ScanConstants.MERGE_IMAGE2, uri2);
+                    getActivity().setResult(Activity.RESULT_OK, data);
+                    bitmap1.recycle();
+                    bitmap2.recycle();
+                    System.gc();
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                    //        dismissDialog();
+                            getActivity().finish();
+                        }
+                    });
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+       // ScanConstants.resultImage1 = bitmap1;
+      //  ScanConstants.resultImage2 = bitmap2;
+      //  getActivity().finish();
+    }
+
     private boolean isScanPointsValid(Map<Integer, PointF> points) {
         return points.size() == 4;
     }
@@ -144,11 +182,12 @@ this.image2 = image2;
         protected Bitmap doInBackground(Void... params) {
             Bitmap bitmap1 =  getScannedBitmap(image1, points1, sourceImageView1);
             Bitmap bitmap2 =  getScannedBitmap(image2, points2, sourceImageView2);
-            ScanConstants.resultImage1 = bitmap1;
-            ScanConstants.resultImage2 = bitmap2;
-            Uri uri1 = Utils.getUri(getActivity(), bitmap1);
-            Uri uri2 = Utils.getUri(getActivity(), bitmap2);
-            getActivity().finish();
+          //  ScanConstants.resultImage1 = bitmap1;
+          //  ScanConstants.resultImage2 = bitmap2;
+
+
+
+
             return bitmap1;
         }
 
@@ -156,6 +195,8 @@ this.image2 = image2;
         protected void onPostExecute(Bitmap bitmap) {
             super.onPostExecute(bitmap);
             bitmap.recycle();
+
+            getActivity().finish();
             dismissDialog();
         }
     }

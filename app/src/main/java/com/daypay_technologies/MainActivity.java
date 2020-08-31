@@ -285,12 +285,37 @@ return true;
                 e.printStackTrace();
             }
         }
-        if (requestCode == MERGE_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
-            if(ScanConstants.resultImage1 != null && ScanConstants.resultImage2 != null){
+        if (requestCode == MERGE_REQUEST_CODE && resultCode == Activity.RESULT_OK ) {
+
+            Uri uri1 = data.getExtras().getParcelable(ScanConstants.MERGE_IMAGE1);
+            Uri uri2 = data.getExtras().getParcelable(ScanConstants.MERGE_IMAGE2);
+            Bitmap mBitmap1 = null;
+            Bitmap mBitmap2 = null;
+            try {
+                mBitmap1 = MediaStore.Images.Media.getBitmap(getContentResolver(), uri1);
+                getContentResolver().delete(uri1, null, null);
+                mBitmap2 = MediaStore.Images.Media.getBitmap(getContentResolver(), uri2);
+                getContentResolver().delete(uri1, null, null);
+                imageMerge(mBitmap1, mBitmap2);
+                // shareIcon.setVisible(true);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+
+          /*  if(ScanConstants.resultImage1 != null && ScanConstants.resultImage2 != null){
                 Bitmap image1 = ScanConstants.resultImage1;
                 Bitmap image2 = ScanConstants.resultImage2;
-                imageMerge(image1, image2);
-            }
+if (image1.isRecycled()){
+    Toast.makeText(this,"Recycled",Toast.LENGTH_LONG).show();
+    showImage(image1, null);
+}
+else{
+    Toast.makeText(this,"Not Recycled",Toast.LENGTH_LONG).show();
+}
+               // imageMerge(image1, image2);
+               // showImage(image1, null);
+            } */
 
         }
         if (requestCode == 143) {
@@ -396,7 +421,7 @@ return true;
         if(fragment instanceof MergeImageFragment) {
          if(((MergeImageFragment) fragment).merge()){
 
-         //     Toast.makeText(this,"Merged", Toast.LENGTH_SHORT).show();
+         //    Toast.makeText(this,"Merged", Toast.LENGTH_SHORT).show();
           }
           else {
               Toast.makeText(this,"Select Images to Merge", Toast.LENGTH_SHORT).show();
