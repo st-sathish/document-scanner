@@ -1,1 +1,2 @@
+include ':idcardcamera'
 include ':app', ':scanlibrary'

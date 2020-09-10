@@ -2,6 +2,8 @@ package com.daypay_technologies;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -22,10 +24,16 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.daypay_technologies.fragments.CreatePdfFragment;
@@ -37,6 +45,8 @@ import com.itextpdf.text.Image;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.scanlibrary.ScanActivity;
 import com.scanlibrary.ScanConstants;
+import com.wildma.idcardcamera.camera.IDCardCamera;
+
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -89,7 +99,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         StrictMode.setVmPolicy(builder.build());
        // addBottomBorder();
         root = Environment.getExternalStorageDirectory().getAbsolutePath();
-        myDir = new File(root + "/documentimages");
+        myDir = new File(root + "/Scanner");
         if (! myDir.exists()) {
            if (myDir.mkdirs()){
                Toast.makeText(this, "created",Toast.LENGTH_LONG).show();
@@ -161,7 +171,10 @@ return true;
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
         switch (menuItem.getItemId()){
             case R.id.camera:
-                startScan(ScanConstants.OPEN_CAMERA);
+
+                openModal();
+
+             //  IDCardCamera.create(this).openCamera(IDCardCamera.TYPE_IDCARD_FRONT);
 
                 break;
             case R.id.media:
@@ -178,6 +191,42 @@ return true;
                 break;
         }
         return true;
+    }
+
+    private void openModal() {
+            final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            final boolean[] n = new boolean[1];
+            EditText input = new EditText(this);
+        LayoutInflater inflater = this.getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.camera_modal, null);
+       RadioButton id = dialogView.findViewById(R.id.id);
+        RadioButton full = dialogView.findViewById(R.id.full);
+        final RadioGroup radioGroup = dialogView.findViewById(R.id.radioGroup);
+
+
+            builder.setView(dialogView);
+            builder.setTitle("Select Type");
+            builder.setCancelable(false);
+
+            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.cancel();
+                }
+            });
+        builder.setPositiveButton("Continue", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if(radioGroup .getCheckedRadioButtonId()==R.id.id){
+                    startScan(ScanConstants.OPEN_CAMERA);
+                } else if(radioGroup .getCheckedRadioButtonId()==R.id.full){
+                    startScan(ScanConstants.OPEN_CAMERA);
+                }
+                dialog.cancel();
+            }
+        });
+            AlertDialog alertDialog = builder.create();
+            alertDialog.show();
     }
 
     private void mergeImageFragment() {
@@ -335,8 +384,9 @@ else{
         float firstLeft = firstImage.getWidth()> secondImage.getWidth() ? 0f : (float) (secondImage.getWidth()-firstImage.getWidth())/2;
         float secondLeft = firstImage.getWidth()< secondImage.getWidth() ? 0f : (float) (firstImage.getWidth()-secondImage.getWidth())/2;
         Canvas canvas = new Canvas(result);
+       // canvas.drawARGB(256,256,256,256);
         canvas.drawBitmap(firstImage, firstLeft, 0f, null);
-        canvas.drawBitmap(secondImage, secondLeft, firstImage.getHeight(), null);
+        canvas.drawBitmap(secondImage, secondLeft, firstImage.getHeight()+50, null);
         ScanConstants.resultImage1 = null;
         ScanConstants.resultImage2 = null;
         if(result != null) {
@@ -379,7 +429,7 @@ else{
         Document document = new Document();
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new
                 Date());
-        File directory = new File(root + "/documentimages/Documents");
+        File directory = new File(root + "/Scanner/Documents");
         if (! directory.exists()) {
             directory.mkdirs();
         }
@@ -403,7 +453,7 @@ else{
         }
         catch(Exception e){
             e.printStackTrace();
-            Toast.makeText(this,"Sorry, Unable convert this image to pdf", Toast.LENGTH_LONG).show();
+            Toast.makeText(this,"Sorry, Unable convert this image to pdf "+e.toString(), Toast.LENGTH_LONG).show();
         }
     }
 

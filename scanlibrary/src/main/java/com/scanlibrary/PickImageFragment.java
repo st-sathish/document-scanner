@@ -13,12 +13,16 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.content.FileProvider;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.Toast;
+
+import com.wildma.idcardcamera.camera.IDCardCamera;
 
 import java.io.File;
 import java.io.IOException;
@@ -143,7 +147,8 @@ public class PickImageFragment extends Fragment implements BottomNavigationView.
             Uri tempFileUri = Uri.fromFile(file);
             cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, tempFileUri);
         }
-        startActivityForResult(cameraIntent, ScanConstants.START_CAMERA_REQUEST_CODE);
+       // startActivityForResult(cameraIntent, ScanConstants.START_CAMERA_REQUEST_CODE);
+        IDCardCamera.create(this).openCamera(IDCardCamera.TYPE_FULLSIZE);
     }
 
     private File createImageFile() {
@@ -174,7 +179,37 @@ public class PickImageFragment extends Fragment implements BottomNavigationView.
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        } else {
+        }
+       else if (resultCode == IDCardCamera.RESULT_CODE) {
+
+            final String path = IDCardCamera.getImagePath(data);
+            if (!TextUtils.isEmpty(path)) {
+                if (requestCode == IDCardCamera.TYPE_FULLSIZE) {
+                    bitmap = BitmapFactory.decodeFile(path);
+                    if (bitmap != null) {
+                        postImagePick(bitmap);
+                        Toast.makeText(getActivity(),"not null",Toast.LENGTH_LONG).show();
+                    }
+                    else {
+                        Toast.makeText(getActivity(),"null",Toast.LENGTH_LONG).show();
+                    }
+                    return;
+                   // mIvFront.setImageBitmap(BitmapFactory.decodeFile(path));
+                } else if (requestCode == IDCardCamera.TYPE_IDCARD) {
+                    bitmap = BitmapFactory.decodeFile(path);
+                    if (bitmap != null) {
+                        postImagePick(bitmap);
+                        Toast.makeText(getActivity(),"not null",Toast.LENGTH_LONG).show();
+                    }
+                    Toast.makeText(getActivity(),"null",Toast.LENGTH_LONG).show();
+                    return;
+                  //  mIvBack.setImageBitmap(BitmapFactory.decodeFile(path));
+                }
+
+//                FileUtils.clearCache(this);
+            }
+        }
+        else {
             getActivity().finish();
         }
         if (bitmap != null) {

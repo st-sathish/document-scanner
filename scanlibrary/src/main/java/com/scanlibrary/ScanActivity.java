@@ -4,14 +4,17 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.FragmentTransaction;
 import android.content.ComponentCallbacks2;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.EditText;
 
 /**
  * Created by jhansi on 28/03/15.
@@ -35,10 +38,13 @@ public class ScanActivity extends Activity implements IScanner, ComponentCallbac
          mergeImage(image1, image2);
      } else{
          init();
+
      }
 
 
     }
+
+
 
     private void mergeImage(Bitmap image1, Bitmap image2) {
 
@@ -50,6 +56,7 @@ public class ScanActivity extends Activity implements IScanner, ComponentCallbac
     }
 
     private void init() {
+
         PickImageFragment fragment = new PickImageFragment();
         Bundle bundle = new Bundle();
         bundle.putInt(ScanConstants.OPEN_INTENT_PREFERENCE, getPreferenceContent());
@@ -58,6 +65,7 @@ public class ScanActivity extends Activity implements IScanner, ComponentCallbac
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.add(R.id.content, fragment);
         fragmentTransaction.commit();
+
     }
 
     protected int getPreferenceContent() {
