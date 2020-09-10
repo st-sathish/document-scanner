@@ -122,12 +122,12 @@ public class CameraActivity extends Activity implements View.OnClickListener {
         float screenMaxSize = Math.max(ScreenUtils.getScreenWidth(this), ScreenUtils.getScreenHeight(this));
         float height =0f, width=0f;
         switch (mType) {
-            case IDCardCamera.TYPE_FULLSIZE:
+            case IDCardCamera.TYPE_IDCARD:
                 //  mIvCameraCrop.setImageResource(R.mipmap.camera_idcard_front);
               height = (int) (screenMinSize * .99);
-               width = (int) (height * 75.0f / 47.0f);
+               width = (int) (height * 68.0f / 47.0f);
                 break;
-            case IDCardCamera.TYPE_IDCARD:
+            case IDCardCamera.TYPE_FULLSIZE:
                height = (int) (screenMinSize * 0.75);
                width = (int) (height * 75.0f / 47.0f);
                 //  mIvCameraCrop.setImageResource(R.mipmap.camera_idcard_back);

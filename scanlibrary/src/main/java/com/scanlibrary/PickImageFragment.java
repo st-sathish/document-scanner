@@ -40,6 +40,7 @@ public class PickImageFragment extends Fragment implements BottomNavigationView.
     private ImageButton galleryButton;
     private Uri fileUri;
     private IScanner scanner;
+    private int preference;
 
     @Override
     public void onAttach(Activity activity) {
@@ -83,9 +84,15 @@ public class PickImageFragment extends Fragment implements BottomNavigationView.
 
     private void handleIntentPreference() {
         int preference = getIntentPreference();
-        if (preference == ScanConstants.OPEN_CAMERA) {
-            openCamera();
-        } else if (preference == ScanConstants.OPEN_MEDIA) {
+        if (preference == ScanConstants.OPEN_FULL_CAMERA) {
+            this.preference = ScanConstants.OPEN_FULL_CAMERA;
+            openCamera(ScanConstants.OPEN_FULL_CAMERA);
+        }
+        else if (preference == ScanConstants.OPEN_ID_CAMERA) {
+            this.preference = ScanConstants.OPEN_ID_CAMERA;
+            openCamera(ScanConstants.OPEN_ID_CAMERA);
+        }
+        else if (preference == ScanConstants.OPEN_MEDIA) {
             openMediaContent();
         }
     }
@@ -104,7 +111,7 @@ public class PickImageFragment extends Fragment implements BottomNavigationView.
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
         int itemId = menuItem.getItemId();
         if (itemId == R.id.camera1) {
-            openCamera();
+            openCamera(preference);
         } else if (itemId == R.id.media1) {
             openMediaContent();
         }
@@ -115,7 +122,7 @@ public class PickImageFragment extends Fragment implements BottomNavigationView.
     private class CameraButtonClickListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
-            openCamera();
+            openCamera(preference);
         }
     }
 
@@ -133,7 +140,7 @@ public class PickImageFragment extends Fragment implements BottomNavigationView.
         startActivityForResult(intent, ScanConstants.PICKFILE_REQUEST_CODE);
     }
 
-    public void openCamera() {
+    public void openCamera(int selection) {
         Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
         File file = createImageFile();
         boolean isDirectoryCreated = file.getParentFile().mkdirs();
@@ -148,7 +155,10 @@ public class PickImageFragment extends Fragment implements BottomNavigationView.
             cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, tempFileUri);
         }
        // startActivityForResult(cameraIntent, ScanConstants.START_CAMERA_REQUEST_CODE);
+        if(selection==ScanConstants.OPEN_FULL_CAMERA)
         IDCardCamera.create(this).openCamera(IDCardCamera.TYPE_FULLSIZE);
+        if(selection==ScanConstants.OPEN_ID_CAMERA)
+            IDCardCamera.create(this).openCamera(IDCardCamera.TYPE_IDCARD);
     }
 
     private File createImageFile() {

@@ -218,9 +218,9 @@ return true;
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 if(radioGroup .getCheckedRadioButtonId()==R.id.id){
-                    startScan(ScanConstants.OPEN_CAMERA);
+                    startScan(ScanConstants.OPEN_FULL_CAMERA);
                 } else if(radioGroup .getCheckedRadioButtonId()==R.id.full){
-                    startScan(ScanConstants.OPEN_CAMERA);
+                    startScan(ScanConstants.OPEN_ID_CAMERA);
                 }
                 dialog.cancel();
             }
