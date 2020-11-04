@@ -198,10 +198,10 @@ public class PickImageFragment extends Fragment implements BottomNavigationView.
                     bitmap = BitmapFactory.decodeFile(path);
                     if (bitmap != null) {
                         postImagePick(bitmap);
-                        Toast.makeText(getActivity(),"not null",Toast.LENGTH_LONG).show();
+                       // Toast.makeText(getActivity(),"not null",Toast.LENGTH_LONG).show();
                     }
                     else {
-                        Toast.makeText(getActivity(),"null",Toast.LENGTH_LONG).show();
+                        //Toast.makeText(getActivity(),"null",Toast.LENGTH_LONG).show();
                     }
                     return;
                    // mIvFront.setImageBitmap(BitmapFactory.decodeFile(path));
@@ -209,9 +209,9 @@ public class PickImageFragment extends Fragment implements BottomNavigationView.
                     bitmap = BitmapFactory.decodeFile(path);
                     if (bitmap != null) {
                         postImagePick(bitmap);
-                        Toast.makeText(getActivity(),"not null",Toast.LENGTH_LONG).show();
+                      //  Toast.makeText(getActivity(),"not null",Toast.LENGTH_LONG).show();
                     }
-                    Toast.makeText(getActivity(),"null",Toast.LENGTH_LONG).show();
+               //     Toast.makeText(getActivity(),"null",Toast.LENGTH_LONG).show();
                     return;
                   //  mIvBack.setImageBitmap(BitmapFactory.decodeFile(path));
                 }

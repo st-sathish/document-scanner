@@ -1,6 +1,10 @@
 package com.daypay_technologies.fragments;
 
 
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -12,10 +16,14 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import com.daypay_technologies.MainActivity;
 import com.daypay_technologies.R;
@@ -27,6 +35,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.zip.Inflater;
 
+import lib.folderpicker.FolderPicker;
+
 public class MergeImageFragment extends Fragment {
     View view;
     RecyclerView recyclerView;
@@ -35,6 +45,9 @@ public class MergeImageFragment extends Fragment {
     ArrayList<File> imageData;
     MergeImageAdapter imageRecyclerAdapter;
     int[] imagePosition;
+    public int FOLDERPICKER_CODE = 1988;
+    public String _folderLocation;
+    private Bitmap _result;
 
     public MergeImageFragment(){
     }
@@ -86,11 +99,68 @@ public class MergeImageFragment extends Fragment {
             canvas.drawBitmap(firstImage, firstLeft, 0f, null);
             canvas.drawBitmap(secondImage, secondLeft, firstImage.getHeight(), null);
             if(result != null) {
-              File file =  ((MainActivity)getActivity()).saveImage(result);
-                ((MainActivity)getActivity()).showImage(result, file);
+                _result = result;
+                Intent intent = new Intent(getActivity(), FolderPicker.class);
+                intent.putExtra("title", "Select folder to save");
+                startActivityForResult(intent, FOLDERPICKER_CODE);
+
             }
     }
+    public void showModal(){
+        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        final EditText input = new EditText(getActivity());
 
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT);
+        input.setLayoutParams(lp);
+
+
+
+        builder.setView(input);
+        builder.setTitle("Select File Name");
+        builder.setCancelable(false);
+
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+        builder.setPositiveButton("Continue", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+                if(!input.getText().toString().matches("")) {
+                    MainActivity mainActivity = (MainActivity)getActivity();
+                    mainActivity.mFolderLocation = _folderLocation;
+                    mainActivity.mFile = input.getText().toString();
+                    File file =  mainActivity.saveImage(_result);
+                    mainActivity.showImage(_result, file);
+                  //  passImage(_folderLocation, input.getText().toString());
+                    dialog.cancel();
+                }
+
+                else{
+                    Toast.makeText(getActivity(), "Please chooose file name" ,Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+
+    }
+    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        if (requestCode == FOLDERPICKER_CODE && resultCode == Activity.RESULT_OK) {
+
+            String folderLocation = intent.getExtras().getString("data");
+            Log.i( "folderLocation", folderLocation );
+            _folderLocation = folderLocation;
+            showModal();
+            // passImage(folderLocation);
+
+        }
+    }
     @Override
     public void onResume() {
         super.onResume();

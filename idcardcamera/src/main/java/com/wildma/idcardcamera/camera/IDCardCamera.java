@@ -16,7 +16,7 @@ import java.lang.ref.WeakReference;
 public class IDCardCamera {
 
     public final static int    TYPE_FULLSIZE     = 1;//身份证正面
-    public final static int    TYPE_IDCARD     = 2;//身份证反面
+    public final static int    TYPE_IDCARD     = 20;//身份证反面
     public final static int    RESULT_CODE           = 0X11;//结果码
     public final static int    PERMISSION_CODE_FIRST = 0x12;//权限请求码
     public final static String TAKE_TYPE             = "take_type";//拍摄类型标记

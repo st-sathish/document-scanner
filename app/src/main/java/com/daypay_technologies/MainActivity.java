@@ -62,7 +62,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     private static final int MERGE_REQUEST_CODE = 98;
     BottomNavigationView bottomNavigationView;
     Uri imageUri, pdfUri;
-    String root;
+    public String root, mFolder, mFolderLocation, mFile;
     File myDir;
     FragmentManager fragmentManager;
     FragmentTransaction fragmentTransaction;
@@ -100,20 +100,33 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
        // addBottomBorder();
         root = Environment.getExternalStorageDirectory().getAbsolutePath();
         myDir = new File(root + "/Scanner");
-        if (! myDir.exists()) {
-           if (myDir.mkdirs()){
-               Toast.makeText(this, "created",Toast.LENGTH_LONG).show();
-           }
-           else{
-               Toast.makeText(this, "Not created",Toast.LENGTH_LONG).show();
-           }
-        } else {
-            Toast.makeText(this, "Already exists",Toast.LENGTH_LONG).show();
-        }
+        createFolder(myDir);
 
       init();
     }
+public void createFolder(File path){
+    deleteFolder(path);
+    if(path.exists())
+    path.delete();
+    if(!path.exists())
+    path.mkdirs();
+}
+public void deleteFolder(File path){
+    if( path.exists() ) {
+        File[] files = path.listFiles();
+        for(int i=0; i<files.length; i++) {
 
+            if(files[i].isDirectory()) {
+                deleteFolder(files[i]);
+            }
+            else {
+                files[i].delete();
+            }
+
+        }
+    }
+
+}
     private void setLandingPage() {
         LandingPageFragment landingPageFragment = new LandingPageFragment();
         fragmentTransaction = fragmentManager.beginTransaction();
@@ -275,11 +288,18 @@ return true;
 
 
     public File saveImage(Bitmap finalBitmap) {
+       // File customFolder = new File(root + "/"+mFolder);
+        File customFolder = new File(mFolderLocation);
+        if (! customFolder.exists()) {
+            customFolder.mkdirs();
+        }
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new
                 Date());
 
-        String fname = "Image-"+ timeStamp +".jpg";
+        String fname = mFile+""+timeStamp +".jpg";
         File file = new File (myDir, fname);
+        File customFile = new File (customFolder, fname);
+
         if (file.exists ()) file.delete ();
         try {
             FileOutputStream out = new FileOutputStream(file);
@@ -288,6 +308,16 @@ return true;
             out.close();
             imageUri = Uri.fromFile(file);
 
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if (customFile.exists ()) customFile.delete ();
+        try {
+            FileOutputStream out = new FileOutputStream(customFile);
+            finalBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+            out.flush();
+            out.close();
+            imageUri = Uri.fromFile(customFile);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -321,6 +351,10 @@ return true;
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_CODE && resultCode == Activity.RESULT_OK) {
             Uri uri = data.getExtras().getParcelable(ScanConstants.SCANNED_RESULT);
+             //mFolder = data.getStringExtra(ScanConstants.FOLDER_NAME);
+            mFolderLocation = data.getStringExtra(ScanConstants.FOLDER_LOCATION);
+
+            mFile = data.getStringExtra(ScanConstants.FILE_NAME);
             imageUri = uri;
             Bitmap bitmap = null;
             try {
@@ -338,6 +372,8 @@ return true;
 
             Uri uri1 = data.getExtras().getParcelable(ScanConstants.MERGE_IMAGE1);
             Uri uri2 = data.getExtras().getParcelable(ScanConstants.MERGE_IMAGE2);
+            mFile = data.getStringExtra(ScanConstants.FILE_NAME);
+            mFolderLocation = data.getStringExtra(ScanConstants.FOLDER_LOCATION);
             Bitmap mBitmap1 = null;
             Bitmap mBitmap2 = null;
             try {
@@ -425,15 +461,15 @@ else{
 
         return super.onOptionsItemSelected(item);
     }
-    public void convertPdf(File imagefile){
+    public void convertPdf(File imagefile, String folderLocation, String _fileName){
         Document document = new Document();
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new
                 Date());
-        File directory = new File(root + "/Scanner/Documents");
+        File directory = new File(folderLocation);
         if (! directory.exists()) {
             directory.mkdirs();
         }
-        String fileName = "Document-"+ timeStamp +".pdf";
+        String fileName = _fileName+ timeStamp +".pdf";
         String imageName = imagefile.getName();
         File file = new File (directory, fileName);
         if (file.exists ()) file.delete ();

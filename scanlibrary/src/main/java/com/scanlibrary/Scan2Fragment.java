@@ -2,8 +2,10 @@ package com.scanlibrary;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
@@ -19,14 +21,20 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.Toast;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import lib.folderpicker.FolderPicker;
 
 /**
  * Created by jhansi on 29/03/15.
@@ -43,7 +51,9 @@ public class Scan2Fragment extends ScanFragment {
     private ProgressDialogFragment progressDialogFragment;
     private Bitmap original;
     Bitmap image1,image2;
-
+    public int FOLDERPICKER_CODE = 1988;
+    public String _folderLocation;
+    private Bitmap bitmap1, bitmap2;
 
     @Override
     public void onAttach(Activity activity) {
@@ -108,37 +118,100 @@ this.image2 = image2;
             }
         });
     }
+    public void showModal(){
+        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        final EditText input = new EditText(getActivity());
 
-    public void cropImage(Map<Integer, PointF> points1, Map<Integer, PointF> points2){
-        final Bitmap bitmap1 =  getScannedBitmap(image1, points1, sourceImageView1);
-        final Bitmap bitmap2 =  getScannedBitmap(image2, points2, sourceImageView2);
-        AsyncTask.execute(new Runnable() {
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT);
+        input.setLayoutParams(lp);
+
+
+
+        builder.setView(input);
+        builder.setTitle("Select File Name");
+        builder.setCancelable(false);
+
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             @Override
-            public void run() {
-                try {
-                    Intent data = new Intent();
-                   Bitmap image1 = bitmap1;
-                   Bitmap image2 = bitmap2;
-                    Uri uri1 = Utils.getUri(getActivity(), image1);
-                    Uri uri2 = Utils.getUri(getActivity(), image2);
-                    data.putExtra(ScanConstants.MERGE_IMAGE1, uri1);
-                    data.putExtra(ScanConstants.MERGE_IMAGE2, uri2);
-                    getActivity().setResult(Activity.RESULT_OK, data);
-                    bitmap1.recycle();
-                    bitmap2.recycle();
-                    System.gc();
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                    //        dismissDialog();
-                            getActivity().finish();
-                        }
-                    });
-                } catch (Exception e) {
-                    e.printStackTrace();
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+        builder.setPositiveButton("Continue", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+                if(!input.getText().toString().matches("")) {
+                    finishActivity(bitmap1, bitmap2 , input.getText().toString());
+                    //  passImage(_folderLocation, input.getText().toString());
+                    dialog.cancel();
+                }
+
+                else{
+                    Toast.makeText(getActivity(), "Please chooose file name" ,Toast.LENGTH_SHORT).show();
                 }
             }
         });
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+
+    }
+    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        if (requestCode == FOLDERPICKER_CODE && resultCode == Activity.RESULT_OK) {
+
+            String folderLocation = intent.getExtras().getString("data");
+            Log.i( "folderLocation", folderLocation );
+            _folderLocation = folderLocation;
+            showModal();
+            // passImage(folderLocation);
+
+        }
+    }
+public void finishActivity(Bitmap _bitmap1, Bitmap _bitmap2, final String _fileName){
+    final Bitmap bitmap1 =  _bitmap1;
+    final Bitmap bitmap2 =  _bitmap2;
+    final String fileName =_fileName;
+    final String folderLocation =_folderLocation;
+    AsyncTask.execute(new Runnable() {
+        @Override
+        public void run() {
+            try {
+                Intent data = new Intent();
+                Bitmap image1 = bitmap1;
+                Bitmap image2 = bitmap2;
+                Uri uri1 = Utils.getUri(getActivity(), image1);
+                Uri uri2 = Utils.getUri(getActivity(), image2);
+                data.putExtra(ScanConstants.FOLDER_LOCATION, folderLocation);
+                data.putExtra(ScanConstants.FILE_NAME, _fileName);
+                data.putExtra(ScanConstants.MERGE_IMAGE1, uri1);
+                data.putExtra(ScanConstants.MERGE_IMAGE2, uri2);
+
+                getActivity().setResult(Activity.RESULT_OK, data);
+                bitmap1.recycle();
+                bitmap2.recycle();
+                System.gc();
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        //        dismissDialog();
+                        getActivity().finish();
+                    }
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    });
+}
+    public void cropImage(Map<Integer, PointF> points1, Map<Integer, PointF> points2){
+         bitmap1 =  getScannedBitmap(image1, points1, sourceImageView1);
+         bitmap2 =  getScannedBitmap(image2, points2, sourceImageView2);
+        Intent intent = new Intent(getActivity(), FolderPicker.class);
+        intent.putExtra("title", "Select folder to save");
+        startActivityForResult(intent, FOLDERPICKER_CODE);
+
        // ScanConstants.resultImage1 = bitmap1;
       //  ScanConstants.resultImage2 = bitmap2;
       //  getActivity().finish();

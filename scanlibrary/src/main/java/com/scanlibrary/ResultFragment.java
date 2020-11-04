@@ -1,21 +1,31 @@
 package com.scanlibrary;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
+
+import lib.folderpicker.FolderPicker;
 
 /**
  * Created by jhansi on 29/03/15.
@@ -31,6 +41,8 @@ public class ResultFragment extends Fragment {
     private Button grayModeButton;
     private Button bwButton;
     private Bitmap transformed;
+    public int FOLDERPICKER_CODE = 1988;
+    public String _folderLocation;
     private static ProgressDialogFragment progressDialogFragment;
 
     public ResultFragment() {
@@ -79,37 +91,98 @@ public class ResultFragment extends Fragment {
     public void setScannedImage(Bitmap scannedImage) {
         scannedImageView.setImageBitmap(scannedImage);
     }
+    public void showModal(){
+        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        final EditText input = new EditText(getActivity());
+
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT);
+        input.setLayoutParams(lp);
+
+
+
+        builder.setView(input);
+        builder.setTitle("Select File Name");
+        builder.setCancelable(false);
+
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+        builder.setPositiveButton("Continue", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+                 if(!input.getText().toString().matches("")) {
+                        passImage(_folderLocation, input.getText().toString());
+                        dialog.cancel();
+                    }
+
+                else{
+                    Toast.makeText(getActivity(), "Please chooose file name" ,Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+
+    }
+    public void passImage(final String folderLocation, final String fileName){
+        showProgressDialog(getResources().getString(R.string.loading));
+        AsyncTask.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Intent data = new Intent();
+                    Bitmap bitmap = transformed;
+                    if (bitmap == null) {
+                        bitmap = original;
+                    }
+                    Uri uri = Utils.getUri(getActivity(), bitmap);
+                    data.putExtra(ScanConstants.SCANNED_RESULT, uri);
+                    data.putExtra(ScanConstants.FOLDER_LOCATION, folderLocation);
+                   data.putExtra(ScanConstants.FILE_NAME, fileName);
+                    getActivity().setResult(Activity.RESULT_OK, data);
+                    original.recycle();
+                    System.gc();
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            dismissDialog();
+                            getActivity().finish();
+                        }
+                    });
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
 
     private class DoneButtonClickListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
-            showProgressDialog(getResources().getString(R.string.loading));
-            AsyncTask.execute(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        Intent data = new Intent();
-                        Bitmap bitmap = transformed;
-                        if (bitmap == null) {
-                            bitmap = original;
-                        }
-                        Uri uri = Utils.getUri(getActivity(), bitmap);
-                        data.putExtra(ScanConstants.SCANNED_RESULT, uri);
-                        getActivity().setResult(Activity.RESULT_OK, data);
-                        original.recycle();
-                        System.gc();
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                dismissDialog();
-                                getActivity().finish();
-                            }
-                        });
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            });
+            Intent intent = new Intent(getActivity(), FolderPicker.class);
+            intent.putExtra("title", "Select folder to save");
+            startActivityForResult(intent, FOLDERPICKER_CODE);
+
+
+//showModal();
+
+        }
+    }
+     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        if (requestCode == FOLDERPICKER_CODE && resultCode == Activity.RESULT_OK) {
+
+            String folderLocation = intent.getExtras().getString("data");
+            Log.i( "folderLocation", folderLocation );
+            _folderLocation = folderLocation;
+            showModal();
+           // passImage(folderLocation);
+
         }
     }
 
