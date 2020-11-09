@@ -210,6 +210,7 @@ public void finishActivity(Bitmap _bitmap1, Bitmap _bitmap2, final String _fileN
          bitmap2 =  getScannedBitmap(image2, points2, sourceImageView2);
         Intent intent = new Intent(getActivity(), FolderPicker.class);
         intent.putExtra("title", "Select folder to save");
+        intent.putExtra("location", ScanConstants.ROOT_FOLDER);
         startActivityForResult(intent, FOLDERPICKER_CODE);
 
        // ScanConstants.resultImage1 = bitmap1;

@@ -23,6 +23,7 @@ import android.widget.Toast;
 
 import com.daypay_technologies.MainActivity;
 import com.daypay_technologies.R;
+import com.scanlibrary.ScanConstants;
 
 import java.io.File;
 import java.util.zip.Inflater;
@@ -64,6 +65,7 @@ public class ShowImageFragment extends Fragment {
     public void convertToPdf(){
         Intent intent = new Intent(getActivity(), FolderPicker.class);
         intent.putExtra("title", "Select folder to save");
+        intent.putExtra("location", ScanConstants.ROOT_FOLDER);
         startActivityForResult(intent, FOLDERPICKER_CODE);
     }
 

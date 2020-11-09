@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Matrix;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.os.Handler;
@@ -128,8 +129,8 @@ public class CameraActivity extends Activity implements View.OnClickListener {
                width = (int) (height * 68.0f / 47.0f);
                 break;
             case IDCardCamera.TYPE_FULLSIZE:
-               height = (int) (screenMinSize * 0.75);
-               width = (int) (height * 75.0f / 47.0f);
+               height = (int) (screenMinSize * 0.90);
+                width = (int) (height * 68.0f / 104.0f);
                 //  mIvCameraCrop.setImageResource(R.mipmap.camera_idcard_back);
                 break;
         }
@@ -285,16 +286,25 @@ public class CameraActivity extends Activity implements View.OnClickListener {
     /**
      * 点击确认，返回图片路径
      */
+    public static Bitmap rotateBitmapZoom(Bitmap bmOrg, float degree, float zoom){
+        Matrix matrix = new Matrix();
+        matrix.postRotate(degree);
+
+        float newHeight = bmOrg.getHeight() * zoom;
+        float newWidth  = bmOrg.getWidth() / 100 * (100.0f / bmOrg.getHeight() * newHeight);
+
+        return Bitmap.createBitmap(bmOrg, 0, 0, (int)newWidth, (int)newHeight, matrix, true);
+    }
     private void confirm() {
         /*手动裁剪图片*/
         mCropImageView.crop(new CropListener() {
             @Override
-            public void onFinish(Bitmap bitmap) {
-                if (bitmap == null) {
+            public void onFinish(Bitmap _bitmap) {
+                if (_bitmap == null) {
                     Toast.makeText(getApplicationContext(), getString(R.string.crop_fail), Toast.LENGTH_SHORT).show();
                     finish();
                 }
-
+Bitmap bitmap = rotateBitmapZoom(_bitmap, 90, 1);
                 /*保存图片到sdcard并返回图片路径*/
                 String imagePath = new StringBuffer().append(FileUtils.getImageCacheDir(CameraActivity.this)).append(File.separator)
                         .append(System.currentTimeMillis()).append(".jpg").toString();

@@ -24,9 +24,13 @@
 />
             <Button
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="30dp"
                 android:text="Convert to pdf"
-                android:textColor="#000000"
+                android:layout_marginTop="10dp"
+                android:paddingHorizontal="5dp"
+                android:textFontWeight="bold"
+                android:background="#d1004a"
+                android:textColor="#ffffff"
                 android:layout_gravity="center"
                 android:gravity="center"
                 android:id ="@+id/convert"/>

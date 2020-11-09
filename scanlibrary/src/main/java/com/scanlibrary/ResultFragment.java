@@ -10,6 +10,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -132,34 +133,25 @@ public class ResultFragment extends Fragment {
     }
     public void passImage(final String folderLocation, final String fileName){
         showProgressDialog(getResources().getString(R.string.loading));
-        AsyncTask.execute(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Intent data = new Intent();
-                    Bitmap bitmap = transformed;
-                    if (bitmap == null) {
-                        bitmap = original;
-                    }
-                    Uri uri = Utils.getUri(getActivity(), bitmap);
-                    data.putExtra(ScanConstants.SCANNED_RESULT, uri);
-                    data.putExtra(ScanConstants.FOLDER_LOCATION, folderLocation);
-                   data.putExtra(ScanConstants.FILE_NAME, fileName);
-                    getActivity().setResult(Activity.RESULT_OK, data);
-                    original.recycle();
-                    System.gc();
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            dismissDialog();
-                            getActivity().finish();
-                        }
-                    });
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+        try {
+            Intent data = new Intent();
+            Bitmap bitmap = transformed;
+            if (bitmap == null) {
+                bitmap = original;
             }
-        });
+            Uri uri = Utils.getUri(getActivity(), bitmap);
+            data.putExtra(ScanConstants.SCANNED_RESULT, uri);
+            data.putExtra(ScanConstants.FOLDER_LOCATION, folderLocation);
+            data.putExtra(ScanConstants.FILE_NAME, fileName);
+            getActivity().setResult(Activity.RESULT_OK, data);
+            original.recycle();
+            System.gc();
+            dismissDialog();
+            getActivity().finish();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private class DoneButtonClickListener implements View.OnClickListener {
@@ -167,6 +159,7 @@ public class ResultFragment extends Fragment {
         public void onClick(View v) {
             Intent intent = new Intent(getActivity(), FolderPicker.class);
             intent.putExtra("title", "Select folder to save");
+            intent.putExtra("location", ScanConstants.ROOT_FOLDER);
             startActivityForResult(intent, FOLDERPICKER_CODE);
 
 

@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     BottomNavigationView bottomNavigationView;
     Uri imageUri, pdfUri;
     public String root, mFolder, mFolderLocation, mFile;
-    File myDir;
+    File myDir, rootDir;
     FragmentManager fragmentManager;
     FragmentTransaction fragmentTransaction;
     Bitmap imageBitmap;
@@ -98,36 +98,46 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
         StrictMode.setVmPolicy(builder.build());
        // addBottomBorder();
-        root = Environment.getExternalStorageDirectory().getAbsolutePath();
-        myDir = new File(root + "/Scanner");
-        createFolder(myDir);
+//        root = Environment.getExternalStorageDirectory().getAbsolutePath();
+//        rootDir = new File(root + "/Scanner");
+//        myDir = new File(root + "/Scanner/.temp");
+//        createFolder(rootDir, myDir);
 
       init();
     }
-public void createFolder(File path){
-    deleteFolder(path);
-    if(path.exists())
-    path.delete();
-    if(!path.exists())
-    path.mkdirs();
+public void createFolder(File rootPath, File tempPath){
+        ScanConstants.ROOT_FOLDER = rootPath.getAbsolutePath();
+    if(tempPath.exists())
+    deleteFiles(tempPath);
+    if(!tempPath.exists()){
+
+        tempPath.mkdirs();
+    }
+
 }
-public void deleteFolder(File path){
+public void deleteFiles(File path){
     if( path.exists() ) {
         File[] files = path.listFiles();
         for(int i=0; i<files.length; i++) {
 
-            if(files[i].isDirectory()) {
-                deleteFolder(files[i]);
-            }
-            else {
+            if(files[i].isDirectory())
+                continue;
+            else
                 files[i].delete();
-            }
+
 
         }
     }
 
 }
+public void folderSetup(){
+    root = Environment.getExternalStorageDirectory().getAbsolutePath();
+    rootDir = new File(root + "/Scanner");
+    myDir = new File(root + "/Scanner/.temp");
+    createFolder(rootDir, myDir);
+}
     private void setLandingPage() {
+        folderSetup();
         LandingPageFragment landingPageFragment = new LandingPageFragment();
         fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.add(R.id.frame, landingPageFragment);
@@ -288,6 +298,8 @@ return true;
 
 
     public File saveImage(Bitmap finalBitmap) {
+        if(myDir == null)
+            folderSetup();
        // File customFolder = new File(root + "/"+mFolder);
         File customFolder = new File(mFolderLocation);
         if (! customFolder.exists()) {
@@ -296,7 +308,7 @@ return true;
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new
                 Date());
 
-        String fname = mFile+""+timeStamp +".jpg";
+        String fname = mFile+"_"+timeStamp +".jpg";
         File file = new File (myDir, fname);
         File customFile = new File (customFolder, fname);
 
@@ -420,6 +432,7 @@ else{
         float firstLeft = firstImage.getWidth()> secondImage.getWidth() ? 0f : (float) (secondImage.getWidth()-firstImage.getWidth())/2;
         float secondLeft = firstImage.getWidth()< secondImage.getWidth() ? 0f : (float) (firstImage.getWidth()-secondImage.getWidth())/2;
         Canvas canvas = new Canvas(result);
+        canvas.drawRGB( 255, 255, 255);
        // canvas.drawARGB(256,256,256,256);
         canvas.drawBitmap(firstImage, firstLeft, 0f, null);
         canvas.drawBitmap(secondImage, secondLeft, firstImage.getHeight()+50, null);
@@ -463,13 +476,13 @@ else{
     }
     public void convertPdf(File imagefile, String folderLocation, String _fileName){
         Document document = new Document();
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new
+        String timeStamp = new SimpleDateFormat("yyyy-MMdd_HHmmss").format(new
                 Date());
         File directory = new File(folderLocation);
         if (! directory.exists()) {
             directory.mkdirs();
         }
-        String fileName = _fileName+ timeStamp +".pdf";
+        String fileName = _fileName+"_"+ timeStamp +".pdf";
         String imageName = imagefile.getName();
         File file = new File (directory, fileName);
         if (file.exists ()) file.delete ();
