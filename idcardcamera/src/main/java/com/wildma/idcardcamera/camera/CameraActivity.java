@@ -10,7 +10,7 @@ import android.graphics.Matrix;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.app.ActivityCompat;
+
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +19,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.core.app.ActivityCompat;
 
 import com.wildma.idcardcamera.R;
 import com.wildma.idcardcamera.cropper.CropImageView;
@@ -32,12 +34,7 @@ import com.wildma.idcardcamera.utils.ScreenUtils;
 import java.io.File;
 
 
-/**
- * Author       wildma
- * Github       https://github.com/wildma
- * Date         2018/6/24
- * Desc	        ${拍照界面}
- */
+
 public class CameraActivity extends Activity implements View.OnClickListener {
 
     private CropImageView mCropImageView;

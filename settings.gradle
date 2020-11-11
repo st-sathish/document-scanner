@@ -1,2 +1,3 @@
-include ':idcardcamera'
 include ':app', ':scanlibrary'
+include ':idcardcamera'
+rootProject.name = "document"

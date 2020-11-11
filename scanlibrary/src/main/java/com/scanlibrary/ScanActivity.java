@@ -11,10 +11,12 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.content.ContextCompat;
+
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.EditText;
+
+import androidx.core.content.ContextCompat;
 
 /**
  * Created by jhansi on 28/03/15.

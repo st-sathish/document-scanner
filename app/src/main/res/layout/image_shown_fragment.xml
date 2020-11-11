@@ -20,15 +20,16 @@
         android:layout_width="400dp"
         android:layout_height="400dp"
         android:layout_centerInParent="true"
-        android:layout_gravity="center"
-/>
+        android:layout_gravity="center" />
+
+
             <Button
                 android:layout_width="wrap_content"
                 android:layout_height="30dp"
                 android:text="Convert to pdf"
                 android:layout_marginTop="10dp"
                 android:paddingHorizontal="5dp"
-                android:textFontWeight="bold"
+                android:textStyle="bold"
                 android:background="#d1004a"
                 android:textColor="#ffffff"
                 android:layout_gravity="center"
