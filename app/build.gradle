@@ -17,15 +17,62 @@ android {
         vectorDrawables.useSupportLibrary = true
     }
 
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-        }
-    }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    sourceSets {
+        main {
+            manifest.srcFile 'src/main/AndroidManifest.xml'
+            java.srcDirs = ['src/main/java']
+            res.srcDirs = [
+                    'src/main/res',
+                    'src/main/res/layout'
+            ]
+            resources.srcDirs = ['src/main/resources']
+            assets.srcDirs = ['src/main/assets']
+        }
+    }
+
+    packagingOptions {
+        exclude 'META-INF/LICENCE.txt'
+        exclude 'META-INF/DEPENENCIES'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/LICENCE'
+        exclude 'META-INF/LICENCE.txt'
+        exclude 'META-INF/NOTICE.txt'
+    }
+
+    signingConfigs {
+        debug {
+            //storeFile rootProject.file('debug.keystore')
+        }
+        release {
+            storeFile "${project.rootDir}${File.separator}scanner.jks" as File
+            storePassword 'scanner123$'
+            keyAlias 'scanner'
+            keyPassword 'scanner123$'
+        }
+    }
+
+    buildTypes {
+        release {
+            buildConfigField("Boolean", "IS_DEVELOPMENT", "true")
+            println "Started generating apk in debug mode"
+            debuggable false
+            shrinkResources true
+            minifyEnabled true
+            useProguard true
+            jniDebuggable false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles fileTree('proguard').asList().toArray()
+            signingConfig signingConfigs.release
+            zipAlignEnabled true
+            buildConfigField("Boolean", "IS_DEVELOPMENT", "false")
+
+
+        }
     }
 }
 
