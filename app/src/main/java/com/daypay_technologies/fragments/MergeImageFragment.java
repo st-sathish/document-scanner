@@ -173,6 +173,8 @@ public class MergeImageFragment extends Fragment {
         root = Environment.getExternalStorageDirectory().getAbsolutePath();
         directory = new File(root + "/Scanner/.temp");
         File[] files = directory.listFiles();
+        if(files == null)
+            return;
         for (int i = 0; i < files.length; i++) {
             if(files[i].isDirectory())
                 continue;

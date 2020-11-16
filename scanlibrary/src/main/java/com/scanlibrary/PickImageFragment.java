@@ -147,7 +147,7 @@ public class PickImageFragment extends Fragment implements BottomNavigationView.
         Log.d("", "openCamera: isDirectoryCreated: " + isDirectoryCreated);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             Uri tempFileUri = FileProvider.getUriForFile(getActivity().getApplicationContext(),
-                    "com.scanlibrary.provider", // As defined in Manifest
+                    "com.daypay.scanlibrary.provider", // As defined in Manifest
                     file);
             cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, tempFileUri);
         } else {
