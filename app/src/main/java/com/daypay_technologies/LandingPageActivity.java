@@ -21,6 +21,7 @@ import android.view.Window;
 import android.view.WindowManager;
 
 import com.daypay_technologies.fragments.CameraFragment;
+import com.daypay_technologies.fragments.HomeFragment;
 
 import java.util.ArrayList;
 
@@ -34,6 +35,8 @@ public class LandingPageActivity extends BaseAppCompatActivity implements Bottom
     private static final int GALLERY_FRAGMENT = 2;
 
     private static final int MERGE_FRAGMENT = 3;
+
+    private static final int HOME_FRAGMENT = 4;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +67,9 @@ public class LandingPageActivity extends BaseAppCompatActivity implements Bottom
             case CAMERA_FRAGMENT:
                 fragment = CameraFragment.newInstance();
                 break;
+            case HOME_FRAGMENT:
+                fragment = HomeFragment.newInstance("Home");
+                break;
             default:
                 break;
         }
@@ -83,6 +89,9 @@ public class LandingPageActivity extends BaseAppCompatActivity implements Bottom
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
         switch (menuItem.getItemId()){
+            case R.id.home:
+                displayView(HOME_FRAGMENT, "Home", true);
+                break;
             case R.id.camera:
                 displayView(CAMERA_FRAGMENT, "Camera", true);
                 break;
