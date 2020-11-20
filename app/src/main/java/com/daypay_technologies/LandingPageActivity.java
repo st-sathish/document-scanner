@@ -1,15 +1,33 @@
 package com.daypay_technologies;
 
+import android.Manifest;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.support.design.widget.BottomNavigationView;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.view.SurfaceHolder;
+import android.view.Window;
+import android.view.WindowManager;
 
 import com.daypay_technologies.fragments.CameraFragment;
 
-public class LandingPageActivity extends BaseAppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
+import java.util.ArrayList;
+
+import static android.Manifest.permission.CAMERA;
+import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
+
+public class LandingPageActivity extends BaseAppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener{
 
     private static final int CAMERA_FRAGMENT = 1;
 
@@ -23,6 +41,21 @@ public class LandingPageActivity extends BaseAppCompatActivity implements Bottom
         setContentView(R.layout.ac_landing_page);
         BottomNavigationView bottomNavigationView = findViewById(R.id.navigationView);
         bottomNavigationView.setOnNavigationItemSelectedListener(this);
+        attachToolbar();
+    }
+
+    private void attachToolbar() {
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        // get the reference of Toolbar
+        setSupportActionBar(toolbar); // Setting/replace toolbar as the ActionBar
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            Window window = getWindow();
+            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.setStatusBarColor(ContextCompat.getColor(this, R.color.my_statusbar_color));
+        }
+        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+        StrictMode.setVmPolicy(builder.build());
     }
 
     public void displayView(int fragmentNo, String aTitle, boolean addToBackstack) {
