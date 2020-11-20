@@ -1,5 +1,7 @@
 package com.daypay_technologies.fragments;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
@@ -24,7 +26,7 @@ import android.widget.Toast;
 
 import com.daypay_technologies.LandingPageActivity;
 import com.daypay_technologies.R;
-import com.daypay_technologies.widgets.CameraView;
+import com.priyankvasa.android.cameraviewex.CameraView;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -32,28 +34,60 @@ import java.util.ArrayList;
 import static android.Manifest.permission.CAMERA;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
-public class CameraFragment extends BaseFragment implements SurfaceHolder.Callback  {
+@SuppressLint("ValidFragment")
+public class CameraFragment extends BaseFragment {
 
     private SurfaceHolder surfaceHolder;
     private Camera camera;
-    private SurfaceView surfaceView;
+    private CameraView cameraView;
+    private int cameraWidth, cameraHeight;
+    private Button captureBtn;
     public static final int REQUEST_CODE = 100;
     private String[] neededPermissions = new String[]{CAMERA, WRITE_EXTERNAL_STORAGE};
 
-    public static CameraFragment newInstance() {
-        CameraFragment cameraFragment = new CameraFragment();
+    public static CameraFragment newInstance(int cameraWidth, int cameraHeight) {
+        CameraFragment cameraFragment = new CameraFragment(cameraWidth, cameraHeight);
         return cameraFragment;
     }
+
+    @SuppressLint("ValidFragment")
+    public CameraFragment(int cameraWidth, int cameraHeight) {
+        this.cameraWidth = cameraWidth;
+        this.cameraHeight = cameraHeight;
+    }
+
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        // Callbacks on UI thread
+//    cameraView.addCameraOpenedListener() { /* Camera opened. */ }
+//        .addCameraErrorListener { t: Throwable, errorLevel: ErrorLevel -> /* Camera error! */ }
+//        .addCameraClosedListener { /* Camera closed. */ }
+    }
+
+
+
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fr_camera,container,false);
-        surfaceView = view.findViewById(R.id.surfaceView);
-        if (surfaceView != null) {
+        View view = inflater.inflate(R.layout.fr_camera, container, false);
+        cameraView = view.findViewById(R.id.cameraView);
+        captureBtn = view.findViewById(R.id.startBtn);
+        captureBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                    return;
+                }
+                cameraView.capture();
+            }
+        });
+        if (cameraView != null) {
             boolean result = checkPermission();
             if (result) {
-                setupSurfaceHolder();
+                setCameraSize();
+                //setupSurfaceHolder();
             }
         }
         return view;
@@ -119,64 +153,31 @@ public class CameraFragment extends BaseFragment implements SurfaceHolder.Callba
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
-    @Override
-    public void surfaceCreated(SurfaceHolder surfaceHolder) {
-        startCamera();
-    }
-
-    private void startCamera() {
-        camera = Camera.open();
-        camera.setDisplayOrientation(90);
-        try {
-            camera.setPreviewDisplay(surfaceHolder);
-            camera.startPreview();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void setupSurfaceHolder() {
-        surfaceHolder = surfaceView.getHolder();
-        surfaceHolder.addCallback(this);
-    }
 
     @Override
-    public void surfaceChanged(SurfaceHolder surfaceHolder, int i, int i1, int i2) {
-        resetCamera();
-    }
-
-    public void resetCamera() {
-        if (surfaceHolder.getSurface() == null) {
-            // Return if preview surface does not exist
+    public void onResume() {
+        super.onResume();
+        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
 
-        if (camera != null) {
-            // Stop if preview surface is already running.
-            camera.stopPreview();
-            try {
-                // Set preview display
-                camera.setPreviewDisplay(surfaceHolder);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            // Start the camera preview...
-            camera.startPreview();
-        }
+        cameraView.start();
     }
-
+    private void setCameraSize(){
+        ViewGroup.LayoutParams params = cameraView.getLayoutParams();
+        params.height = cameraHeight;
+        params.width = cameraWidth;
+        cameraView.setLayoutParams(params);
+    }
+    @Override
+    public void onPause() {
+        cameraView.stop();
+        super.onPause();
+    }
 
     @Override
-    public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
-        releaseCamera();
+    public void onDestroyView() {
+        cameraView.destroy();
+        super.onDestroyView();
     }
-
-    private void releaseCamera() {
-        if (camera != null) {
-            camera.stopPreview();
-            camera.release();
-            camera = null;
-        }
-    }
-
 }

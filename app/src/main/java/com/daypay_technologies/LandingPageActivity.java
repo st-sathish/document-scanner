@@ -15,13 +15,20 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.SurfaceHolder;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 
 import com.daypay_technologies.fragments.CameraFragment;
 import com.daypay_technologies.fragments.HomeFragment;
+import com.scanlibrary.ScanConstants;
+import com.daypay_technologies.utils.ScreenUtils;
 
 import java.util.ArrayList;
 
@@ -38,6 +45,8 @@ public class LandingPageActivity extends BaseAppCompatActivity implements Bottom
 
     private static final int HOME_FRAGMENT = 4;
 
+    private int cameraWidth, cameraHeight;
+    float screenMinSize,screenMaxSize;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,7 +74,7 @@ public class LandingPageActivity extends BaseAppCompatActivity implements Bottom
         Fragment fragment = null;
         switch (fragmentNo) {
             case CAMERA_FRAGMENT:
-                fragment = CameraFragment.newInstance();
+                fragment = CameraFragment.newInstance(cameraWidth, cameraHeight);
                 break;
             case HOME_FRAGMENT:
                 fragment = HomeFragment.newInstance("Home");
@@ -93,7 +102,8 @@ public class LandingPageActivity extends BaseAppCompatActivity implements Bottom
                 displayView(HOME_FRAGMENT, "Home", true);
                 break;
             case R.id.camera:
-                displayView(CAMERA_FRAGMENT, "Camera", true);
+                chooseCameraSize();
+               // displayView(CAMERA_FRAGMENT, "Camera", true);
                 break;
             case R.id.media:
                 break;
@@ -101,5 +111,44 @@ public class LandingPageActivity extends BaseAppCompatActivity implements Bottom
                 break;
         }
         return true;
+    }
+private void startCamera(int width, int height){
+    cameraWidth=width;
+    cameraHeight=height;
+    displayView(CAMERA_FRAGMENT, "Camera", true);
+}
+    private void chooseCameraSize() {
+         screenMinSize = Math.min(ScreenUtils.getScreenWidth(this), ScreenUtils.getScreenHeight(this));
+         screenMaxSize = Math.max(ScreenUtils.getScreenWidth(this), ScreenUtils.getScreenHeight(this));
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = this.getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.document_modal, null);
+        final RadioGroup radioGroup = dialogView.findViewById(R.id.radioGroup);
+        builder.setView(dialogView);
+        builder.setTitle("Select Camera Type");
+        builder.setCancelable(false);
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+        builder.setPositiveButton("Continue", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if(radioGroup .getCheckedRadioButtonId()==R.id.id){
+                  int height = (int) (screenMinSize * 0.90);
+                   int width = (int) (height * 68.0f / 104.0f);
+                    startCamera(width,height);
+                } else if(radioGroup .getCheckedRadioButtonId()==R.id.others){
+                   int height = (int) (screenMinSize * .99);
+                   int width = (int) (height * 68.0f / 47.0f);
+                    startCamera(width,height);
+                }
+                dialog.cancel();
+            }
+        });
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
     }
 }

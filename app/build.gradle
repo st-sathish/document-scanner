@@ -18,6 +18,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    packagingOptions { exclude('META-INF/atomicfu.kotlin_module') }
 }
 
 dependencies {
@@ -29,5 +30,6 @@ dependencies {
     implementation 'com.itextpdf:itextg:5.5.10'
     implementation project(path: ':idcardcamera')
     implementation 'lib.kashif:folderpicker:2.4'
+    implementation "com.priyankvasa.android:cameraview-ex:3.5.5-alpha"
 
 }
