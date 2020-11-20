@@ -4,5 +4,8 @@
     <string name="app_name">Document Scanner</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
-
+    <string name="btn_capture">Capture</string>
+    <string name="camera_not_found">Camera Not Found</string>
+    <string name="permission_message">Permission</string>
+    <string name="permission_required">Permission Required</string>
 </resources>

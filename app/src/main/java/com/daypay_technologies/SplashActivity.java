@@ -41,7 +41,7 @@ public class SplashActivity extends AppCompatActivity {
 
             public void onFinish() {
 
-                Intent intent=new Intent(SplashActivity.this, MainActivity.class);
+                Intent intent=new Intent(SplashActivity.this, LandingPageActivity.class);
 
                 if(getIntent().getExtras()!=null) {
                     intent.putExtras(getIntent().getExtras());
