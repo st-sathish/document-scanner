@@ -18,6 +18,10 @@
 
         </activity>
         <activity
+            android:name="com.daypay_technologies.LandingPageActivity"
+            android:label="Document Scanner" >
+        </activity>
+        <activity
             android:name="com.daypay_technologies.SplashActivity"
          >
             <intent-filter>
