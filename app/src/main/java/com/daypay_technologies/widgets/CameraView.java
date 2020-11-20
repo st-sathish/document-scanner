@@ -22,7 +22,7 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
     List<Size> mSupportedPreviewSizes;
     Camera mCamera;
 
-    CameraView(Context context, SurfaceView sv) {
+    public CameraView(Context context, SurfaceView sv) {
         super(context);
 
         mSurfaceView = sv;
