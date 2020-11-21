@@ -13,7 +13,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.daypay_technologies.R;
 import com.daypay_technologies.fragments.HomeFragment;
@@ -50,16 +52,17 @@ public class ImageRecyclerAdapter extends
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
        File file = files.get(position);
-
        imagePath = file.getName();
        ImageView imageView = holder.image;
        TextView textView = holder.fileName;
         if (!file.isDirectory()){
             imageBitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
             imageView.setImageBitmap(imageBitmap);
+            holder.checkBox.setVisibility(View.VISIBLE);
         }
         else{
             imageView.setImageDrawable(activity.getResources().getDrawable(R.drawable.fp_folder));
+            holder.checkBox.setVisibility(View.GONE);
         }
         textView.setText(imagePath);
     }
@@ -72,33 +75,32 @@ public class ImageRecyclerAdapter extends
     public class ViewHolder extends RecyclerView.ViewHolder  {
         TextView fileName;
         ImageView image;
+        CheckBox checkBox;
+        LinearLayout fileArea;
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             fileName = (TextView) itemView.findViewById(R.id.file_name);
             image = (ImageView) itemView.findViewById(R.id.image_file);
-            fileName.setOnClickListener(new View.OnClickListener() {
+            checkBox = (CheckBox) itemView.findViewById(R.id.checkBox);
+            fileArea = (LinearLayout) itemView.findViewById(R.id.fileArea);
+            fileArea.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    openFolder(getAdapterPosition());
-                }
-            });
-            image.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    openFolder(getAdapterPosition());
+                    openFolder(getAdapterPosition(), checkBox);
                 }
             });
         }
-        public void openFolder(int position){
+        public void openFolder(int position, CheckBox checkBox){
             File file = files.get(position);
-            if(file.isDirectory()){
-                fragment =  HomeFragment.newInstance(file.getAbsolutePath());
-                FragmentTransaction ft = activity.getSupportFragmentManager().beginTransaction();
-                ft.replace(R.id.frame, fragment, "HomeFragment");
-                ft.addToBackStack("HomeFragment");
-                ft.commit();
+            if(!file.isDirectory()){
+            checkBox.setChecked(!checkBox.isChecked());
+            return;
             }
-
+            fragment =  HomeFragment.newInstance(file.getAbsolutePath());
+            FragmentTransaction ft = activity.getSupportFragmentManager().beginTransaction();
+            ft.replace(R.id.frame, fragment, "HomeFragment");
+            ft.addToBackStack("HomeFragment");
+            ft.commit();
         }
     }
 }

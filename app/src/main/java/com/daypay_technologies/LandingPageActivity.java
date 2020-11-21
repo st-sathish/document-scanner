@@ -1,13 +1,18 @@
 package com.daypay_technologies;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.StrictMode;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.BottomNavigationView;
@@ -25,6 +30,7 @@ import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.Toast;
 
 import com.daypay_technologies.fragments.CameraFragment;
 import com.daypay_technologies.fragments.HomeFragment;
@@ -32,6 +38,7 @@ import com.scanlibrary.ScanConstants;
 import com.daypay_technologies.utils.ScreenUtils;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import static android.Manifest.permission.CAMERA;
@@ -106,11 +113,25 @@ public class LandingPageActivity extends BaseAppCompatActivity implements Bottom
                 displayView(CAMERA_FRAGMENT, "Camera", true);
                 break;
             case R.id.media:
+                fetchImageFromGallery();
                 break;
             case R.id.merge:
                 break;
         }
         return true;
     }
+    public void fetchImageFromGallery(){
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(intent, "Select Picture"),143);
+    }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 143) {
+            Toast.makeText(this,"Image Selected",Toast.LENGTH_LONG).show();
+        }
+    }
 }

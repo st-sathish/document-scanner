@@ -10,6 +10,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.daypay_technologies.R;
 import com.daypay_technologies.fragments.adapters.ImageRecyclerAdapter;
@@ -39,8 +41,12 @@ public class HomeFragment extends BaseFragment {
         recyclerView = (RecyclerView) view.findViewById(R.id.image_recycler);
         imageData = new ArrayList<>();
         setImageData();
-        if(imageData != null) {
+        if(imageData != null)
             setRecyclerAdapter(imageData);
+        else{
+            view = inflater.inflate(R.layout.message_layout,container,false);
+            ((TextView) view.findViewById(R.id.message)).setText(("You have no scanned files"));
+            Toast.makeText(getActivity(), "You have no scanned files",Toast.LENGTH_LONG).show();
         }
         return view;
     }
