@@ -41,12 +41,11 @@ public class HomeFragment extends BaseFragment {
         recyclerView = (RecyclerView) view.findViewById(R.id.image_recycler);
         imageData = new ArrayList<>();
         setImageData();
-        if(imageData != null)
+        if(imageData.size()>0)
             setRecyclerAdapter(imageData);
         else{
             view = inflater.inflate(R.layout.message_layout,container,false);
             ((TextView) view.findViewById(R.id.message)).setText(("You have no scanned files"));
-            Toast.makeText(getActivity(), "You have no scanned files",Toast.LENGTH_LONG).show();
         }
         return view;
     }

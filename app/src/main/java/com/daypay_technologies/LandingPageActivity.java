@@ -34,6 +34,8 @@ import android.widget.Toast;
 
 import com.daypay_technologies.fragments.CameraFragment;
 import com.daypay_technologies.fragments.HomeFragment;
+import com.daypay_technologies.helpers.ImageHelper;
+import com.scanlibrary.ScanActivity;
 import com.scanlibrary.ScanConstants;
 import com.daypay_technologies.utils.ScreenUtils;
 
@@ -43,6 +45,7 @@ import java.util.ArrayList;
 
 import static android.Manifest.permission.CAMERA;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
+
 
 public class LandingPageActivity extends BaseAppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener{
 
@@ -54,6 +57,11 @@ public class LandingPageActivity extends BaseAppCompatActivity implements Bottom
 
     private static final int HOME_FRAGMENT = 4;
 
+    private static final int OPEN_MEDIA = 2105;
+
+    String rootDirectory;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,6 +69,7 @@ public class LandingPageActivity extends BaseAppCompatActivity implements Bottom
         BottomNavigationView bottomNavigationView = findViewById(R.id.navigationView);
         bottomNavigationView.setOnNavigationItemSelectedListener(this);
         attachToolbar();
+        rootDirectory = Environment.getExternalStorageDirectory().getAbsolutePath() + "/DocumentScanner";
     }
 
     private void attachToolbar() {
@@ -84,7 +93,6 @@ public class LandingPageActivity extends BaseAppCompatActivity implements Bottom
                 fragment = CameraFragment.newInstance("Camera");
                 break;
             case HOME_FRAGMENT:
-                String rootDirectory = Environment.getExternalStorageDirectory().getAbsolutePath() + "/DocumentScanner";
                 fragment = HomeFragment.newInstance(rootDirectory);
                 break;
             default:
@@ -121,17 +129,26 @@ public class LandingPageActivity extends BaseAppCompatActivity implements Bottom
         return true;
     }
     public void fetchImageFromGallery(){
-        Intent intent = new Intent();
-        intent.setType("image/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(Intent.createChooser(intent, "Select Picture"),143);
+        Intent intent = new Intent(this, ScanActivity.class);
+        intent.putExtra(ScanConstants.OPEN_INTENT_PREFERENCE, ScanConstants.OPEN_MEDIA);
+        startActivityForResult(intent, OPEN_MEDIA);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 143) {
-            Toast.makeText(this,"Image Selected",Toast.LENGTH_LONG).show();
+        if (requestCode == OPEN_MEDIA && resultCode == Activity.RESULT_OK) {
+            Uri uri = data.getExtras().getParcelable(ScanConstants.SCANNED_RESULT);
+           String  mFolderLocation = data.getStringExtra(ScanConstants.FOLDER_LOCATION);
+            String mFile = data.getStringExtra(ScanConstants.FILE_NAME);
+            Bitmap bitmap = null;
+            try {
+                bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
+                getContentResolver().delete(uri, null, null);
+                File imgFile = ImageHelper.saveImage(bitmap, mFolderLocation, mFile);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 }

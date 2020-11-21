@@ -17,7 +17,8 @@ public class ScanConstants {
     public final static int OPEN_MEDIA = 5;
     public final static int MERGE_IMAGE = 6;
     public static Bitmap image1, image2, resultImage1, resultImage2;
-    public static String ROOT_FOLDER ;
+    public static String ROOT_FOLDER = Environment
+            .getExternalStorageDirectory().getPath() + "/DocumentScanner";
     public final static String SCANNED_RESULT = "scannedResult";
     public final static String FOLDER_NAME = "folder_name";
     public final static String FILE_NAME = "file_name";
