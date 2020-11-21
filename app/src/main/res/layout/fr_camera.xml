@@ -1,10 +1,8 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
 android:layout_width="match_parent"
-android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-android:orientation="vertical">
+android:layout_height="match_parent" xmlns:app="http://schemas.android.com/apk/res-auto" android:orientation="vertical">
 
-    <com.priyankvasa.android.cameraviewex.CameraView
+    <!--<com.priyankvasa.android.cameraviewex.CameraView
         android:id="@+id/cameraView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -26,16 +24,23 @@ android:orientation="vertical">
         app:touchToFocus="true"
         app:zsl="true"
         android:layout_gravity="center"
-        />
+        />-->
+
+    <com.priyankvasa.android.cameraviewex.CameraView
+        android:id="@+id/cameraView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/blue"
+        android:adjustViewBounds="false"
+        app:facing="back"
+        android:keepScreenOn="true"
+        app:aspectRatio="1:1.285" />
 
     <Button
         android:id="@+id/startBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal|bottom"
-        android:text="Capture"
- />
-
-
+        android:text="Capture" />
 
 </FrameLayout>

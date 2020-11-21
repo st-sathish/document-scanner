@@ -22,10 +22,12 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import com.daypay_technologies.LandingPageActivity;
 import com.daypay_technologies.R;
+import com.daypay_technologies.utils.ScreenUtils;
 import com.priyankvasa.android.cameraviewex.CameraView;
 
 import java.io.IOException;
@@ -34,39 +36,25 @@ import java.util.ArrayList;
 import static android.Manifest.permission.CAMERA;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
-@SuppressLint("ValidFragment")
 public class CameraFragment extends BaseFragment {
 
-    private SurfaceHolder surfaceHolder;
-    private Camera camera;
     private CameraView cameraView;
-    private int cameraWidth, cameraHeight;
     private Button captureBtn;
     public static final int REQUEST_CODE = 100;
     private String[] neededPermissions = new String[]{CAMERA, WRITE_EXTERNAL_STORAGE};
 
-    public static CameraFragment newInstance(int cameraWidth, int cameraHeight) {
-        CameraFragment cameraFragment = new CameraFragment(cameraWidth, cameraHeight);
+    public static CameraFragment newInstance(String aTitle) {
+        CameraFragment cameraFragment = new CameraFragment();
+        Bundle bundle = new Bundle();
+        bundle.putString("title", aTitle);
+        cameraFragment.setArguments(bundle);
         return cameraFragment;
-    }
-
-    @SuppressLint("ValidFragment")
-    public CameraFragment(int cameraWidth, int cameraHeight) {
-        this.cameraWidth = cameraWidth;
-        this.cameraHeight = cameraHeight;
     }
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        // Callbacks on UI thread
-//    cameraView.addCameraOpenedListener() { /* Camera opened. */ }
-//        .addCameraErrorListener { t: Throwable, errorLevel: ErrorLevel -> /* Camera error! */ }
-//        .addCameraClosedListener { /* Camera closed. */ }
     }
-
-
-
 
     @Nullable
     @Override
@@ -84,10 +72,15 @@ public class CameraFragment extends BaseFragment {
             }
         });
         if (cameraView != null) {
-            boolean result = checkPermission();
-            if (result) {
-                setCameraSize();
-                //setupSurfaceHolder();
+            if (android.os.Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
+                boolean result = checkPermission();
+                if (result) {
+                    //setCameraSize();
+                    //setupSurfaceHolder();
+                    chooseDocumentCameraType();
+                }
+            } else {
+                chooseDocumentCameraType();
             }
         }
         return view;
@@ -136,6 +129,42 @@ public class CameraFragment extends BaseFragment {
         ActivityCompat.requestPermissions(getActivity(), permissions, REQUEST_CODE);
     }
 
+    private void chooseDocumentCameraType() {
+        //screenMinSize = Math.min(ScreenUtils.getScreenWidth(this), ScreenUtils.getScreenHeight(this));
+        //screenMaxSize = Math.max(ScreenUtils.getScreenWidth(this), ScreenUtils.getScreenHeight(this));
+        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        LayoutInflater inflater = this.getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.document_modal, null);
+        final RadioGroup radioGroup = dialogView.findViewById(R.id.radioGroup);
+        builder.setView(dialogView);
+        builder.setTitle("Select Document Type");
+        builder.setCancelable(false);
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+        builder.setPositiveButton("Continue", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+//                if(radioGroup .getCheckedRadioButtonId()==R.id.id){
+//                    int height = (int) (screenMinSize * 0.90);
+//                    int width = (int) (height * 68.0f / 104.0f);
+//                    startCamera(width,height);
+//                } else if(radioGroup .getCheckedRadioButtonId()==R.id.others){
+//                    int height = (int) (screenMinSize * .99);
+//                    int width = (int) (height * 68.0f / 47.0f);
+//                    startCamera(width,height);
+//                }
+                dialog.cancel();
+                startCamera();
+            }
+        });
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+    }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
@@ -146,7 +175,6 @@ public class CameraFragment extends BaseFragment {
                         return;
                     }
                 }
-
                 // All permissions are granted. So, do the appropriate work now.
                 break;
         }
@@ -157,18 +185,22 @@ public class CameraFragment extends BaseFragment {
     @Override
     public void onResume() {
         super.onResume();
+    }
+
+    private void startCamera() {
+        if(cameraView.isActive()) {
+            cameraView.stop();
+        }
+        ViewGroup.LayoutParams params = cameraView.getLayoutParams();
+        //params.height = cameraHeight;
+        //params.width = cameraWidth;
+        cameraView.setLayoutParams(params);
         if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
-
         cameraView.start();
     }
-    private void setCameraSize(){
-        ViewGroup.LayoutParams params = cameraView.getLayoutParams();
-        params.height = cameraHeight;
-        params.width = cameraWidth;
-        cameraView.setLayoutParams(params);
-    }
+
     @Override
     public void onPause() {
         cameraView.stop();
