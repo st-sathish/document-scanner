@@ -7,10 +7,12 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,8 +23,12 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.daypay_technologies.LandingPageActivity;
 import com.daypay_technologies.MainActivity;
 import com.daypay_technologies.R;
+import com.daypay_technologies.helpers.ImageHelper;
+import com.daypay_technologies.helpers.PdfHelper;
+import com.daypay_technologies.listeners.ShareItemListener;
 import com.scanlibrary.ScanConstants;
 
 import java.io.File;
@@ -31,7 +37,7 @@ import java.util.zip.Inflater;
 import lib.folderpicker.FolderPicker;
 
 @SuppressLint("ValidFragment")
-public class ShowImageFragment extends Fragment {
+public class ShowImageFragment extends Fragment implements ShareItemListener {
     View view;
     Bitmap bitmap;
     File file;
@@ -39,11 +45,14 @@ public class ShowImageFragment extends Fragment {
     Button convert;
     public int FOLDERPICKER_CODE = 1988;
     public String _folderLocation;
+    boolean shareIconVisibility = true;
+    boolean mergeIconVisibility = false;
+    Uri imageUri;
   @SuppressLint("ValidFragment")
-  public ShowImageFragment(Bitmap bitmap, File file){
+  public ShowImageFragment(Bitmap bitmap, File file, Uri imageUri){
       this.bitmap = bitmap;
       this.file = file;
-
+      this.imageUri = imageUri;
     }
 
     @Nullable
@@ -56,7 +65,6 @@ public class ShowImageFragment extends Fragment {
           @Override
           public void onClick(View view) {
               convertToPdf();
-
           }
       });
         imageView.setImageBitmap(bitmap);
@@ -96,7 +104,7 @@ public class ShowImageFragment extends Fragment {
 
                 if(!input.getText().toString().matches("")) {
                    // passImage(_folderLocation, input.getText().toString());
-                    ((MainActivity)getActivity()).convertPdf(file, _folderLocation, input.getText().toString());
+                   PdfHelper.createPdf(file, _folderLocation, input.getText().toString(),(AppCompatActivity) getActivity());
                     dialog.cancel();
                 }
 
@@ -123,9 +131,15 @@ public class ShowImageFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        if(getActivity() instanceof MainActivity){
-            ((MainActivity) getActivity()).setToolbarIcon(this);
+        if(getActivity() instanceof LandingPageActivity){
+            ((LandingPageActivity) getActivity()).setToolbarIcon(shareIconVisibility, mergeIconVisibility);
+            ((LandingPageActivity) getActivity()).setShareItemListener(this);
         }
+    }
+
+    @Override
+    public void onShareClick() {
+        ImageHelper.shareImage(imageUri, (AppCompatActivity) getActivity());
     }
 }
 

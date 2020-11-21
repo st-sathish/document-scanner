@@ -145,7 +145,7 @@ public void folderSetup(){
     }
 
     public void showImage(Bitmap bitmap, File file) {
-            ShowImageFragment showImageFragment = new ShowImageFragment(bitmap, file);
+            ShowImageFragment showImageFragment = new ShowImageFragment(bitmap, file, null);
             fragmentTransaction = fragmentManager.beginTransaction();
             fragmentTransaction.replace(R.id.frame, showImageFragment);
             fragmentTransaction.addToBackStack(null);
@@ -508,7 +508,7 @@ else{
 
     private void viewpdf(File file) {
         pdfUri = Uri.fromFile(file);
-        CreatePdfFragment createPdfFragment = new CreatePdfFragment(file);
+        CreatePdfFragment createPdfFragment = new CreatePdfFragment(file, null);
         fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.frame, createPdfFragment);
         fragmentTransaction.addToBackStack(null);

@@ -32,6 +32,7 @@ public class ImageRecyclerAdapter extends
     String imagePath;
     AppCompatActivity activity;
     HomeFragment fragment;
+    ArrayList<Integer> selectedImages = new ArrayList();
    public ImageRecyclerAdapter(ArrayList<File> files, AppCompatActivity activity){
        this.files = files;
        this.activity = activity;
@@ -45,10 +46,11 @@ public class ImageRecyclerAdapter extends
         View deviceView = inflater.inflate(R.layout.image_list, parent, false);
 
         ViewHolder viewHolder = new ViewHolder(deviceView);
-
         return viewHolder;
     }
-
+public ArrayList getSelectedImagePosition(){
+       return selectedImages;
+}
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
        File file = files.get(position);
@@ -94,7 +96,11 @@ public class ImageRecyclerAdapter extends
             File file = files.get(position);
             if(!file.isDirectory()){
             checkBox.setChecked(!checkBox.isChecked());
-            return;
+            if(checkBox.isChecked())
+                selectedImages.add(new Integer(position));
+            else
+                selectedImages.remove(Integer.valueOf(position));
+                return;
             }
             fragment =  HomeFragment.newInstance(file.getAbsolutePath());
             FragmentTransaction ft = activity.getSupportFragmentManager().beginTransaction();

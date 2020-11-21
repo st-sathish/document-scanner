@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,23 +17,31 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.daypay_technologies.LandingPageActivity;
 import com.daypay_technologies.MainActivity;
 import com.daypay_technologies.R;
+import com.daypay_technologies.helpers.PdfHelper;
+import com.daypay_technologies.listeners.ShareItemListener;
 
 import java.io.File;
 import java.util.zip.Inflater;
 
 @SuppressLint("ValidFragment")
-public class CreatePdfFragment extends Fragment {
+public class CreatePdfFragment extends Fragment implements ShareItemListener {
     View view;
     File file;
     LinearLayout pdf;
     String fileName;
     TextView file_name;
+    Uri pdfUri;
+    boolean shareIconVisibility = true;
+    boolean mergeIconVisibility = false;
     @SuppressLint("ValidFragment")
-    public CreatePdfFragment(File file){
+    public CreatePdfFragment(File file, Uri pdfUri){
         this.file = file;
+        this.pdfUri = pdfUri;
     }
 
     @Nullable
@@ -61,6 +70,19 @@ public class CreatePdfFragment extends Fragment {
             startActivity(Intent.createChooser(pdfViewIntent, "View PDF"));
         }
 
+    }
+    @Override
+    public void onResume() {
+        super.onResume();
+        if(getActivity() instanceof LandingPageActivity){
+            ((LandingPageActivity) getActivity()).setToolbarIcon(shareIconVisibility, mergeIconVisibility);
+            ((LandingPageActivity) getActivity()).setShareItemListener(this);
+        }
+    }
+    @Override
+    public void onShareClick() {
+        Toast.makeText(getActivity(),"share Click", Toast.LENGTH_LONG).show();
+        PdfHelper.sharePdf(pdfUri, (AppCompatActivity)getActivity());
     }
 }
 
