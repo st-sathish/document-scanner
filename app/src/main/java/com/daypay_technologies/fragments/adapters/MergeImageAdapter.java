@@ -97,20 +97,7 @@ public class MergeImageAdapter extends
                     }
                 }
             });
-       /*     checkBox.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if(firstImagePosition == -1 ) {
-                        firstImagePosition = getAdapterPosition();
 
-                    } else {
-                        secondImagePosition = firstImagePosition;
-                        firstImagePosition = getAdapterPosition();
-
-                    }
-
-                }
-            }); */
         }
     }
 }

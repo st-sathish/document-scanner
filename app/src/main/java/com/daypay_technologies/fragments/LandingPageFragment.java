@@ -72,7 +72,7 @@ if(getActivity() instanceof MainActivity){
     }
 
     private void setRecyclerAdapter(ArrayList<File> imageData){
-        ImageRecyclerAdapter imageRecyclerAdapter = new ImageRecyclerAdapter(imageData);
+        ImageRecyclerAdapter imageRecyclerAdapter = new ImageRecyclerAdapter(imageData,null);
         recyclerView.setAdapter(imageRecyclerAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 

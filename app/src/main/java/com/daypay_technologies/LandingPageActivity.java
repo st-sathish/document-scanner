@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.StrictMode;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
@@ -30,6 +31,7 @@ import com.daypay_technologies.fragments.HomeFragment;
 import com.scanlibrary.ScanConstants;
 import com.daypay_technologies.utils.ScreenUtils;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import static android.Manifest.permission.CAMERA;
@@ -75,7 +77,8 @@ public class LandingPageActivity extends BaseAppCompatActivity implements Bottom
                 fragment = CameraFragment.newInstance("Camera");
                 break;
             case HOME_FRAGMENT:
-                fragment = HomeFragment.newInstance("Home");
+                String rootDirectory = Environment.getExternalStorageDirectory().getAbsolutePath() + "/DocumentScanner";
+                fragment = HomeFragment.newInstance(rootDirectory);
                 break;
             default:
                 break;

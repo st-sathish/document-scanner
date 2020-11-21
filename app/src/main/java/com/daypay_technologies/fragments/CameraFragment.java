@@ -27,8 +27,11 @@ import android.widget.Toast;
 
 import com.daypay_technologies.LandingPageActivity;
 import com.daypay_technologies.R;
+import com.daypay_technologies.listeners.PictureTakenListener;
 import com.daypay_technologies.utils.ScreenUtils;
 import com.priyankvasa.android.cameraviewex.CameraView;
+import com.priyankvasa.android.cameraviewex.Image;
+import com.priyankvasa.android.cameraviewex.exif.ExifInterface;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -48,6 +51,7 @@ public class CameraFragment extends BaseFragment {
         Bundle bundle = new Bundle();
         bundle.putString("title", aTitle);
         cameraFragment.setArguments(bundle);
+
         return cameraFragment;
     }
 
@@ -71,6 +75,12 @@ public class CameraFragment extends BaseFragment {
                 cameraView.capture();
             }
         });
+//        cameraView.addPictureTakenListener(new PictureTakenListener(){
+//            @Override
+//            public void onPictureTaken() {
+//System.out.println(2);
+//            }
+//        });
         if (cameraView != null) {
             if (android.os.Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
                 boolean result = checkPermission();
